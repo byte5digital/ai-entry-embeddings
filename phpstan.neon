@@ -1,0 +1,13 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+     # Level 9 is the highest level
+    level: 7
+    paths:
+        - src/
+        - database/
+    ignoreErrors:
+        # Ignore errors about missing return types in the tests directory
+    excludePaths:
+        # Ignore errors in the vendor directory
