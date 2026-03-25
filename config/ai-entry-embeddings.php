@@ -2,10 +2,93 @@
 
 declare(strict_types=1);
 
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractBardField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractGridField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractMarkdownField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractReplicatorField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractSelectField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractTextField;
+
 return [
-    'extraction_pipeline'=>[
-        'collections' => [
-            ''
+    'extraction_pipeline' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Default Field Extractors
+        |--------------------------------------------------------------------------
+        |
+        | Maps Statamic field types to their extractor class. Each extractor
+        | implements FieldExtractorInterface and converts the field's value
+        | to plain text. You can override or extend this map.
+        |
+        */
+        'default_field_extractors' => [
+            'text' => ExtractTextField::class,
+            'textarea' => ExtractTextField::class,
+            'markdown' => ExtractMarkdownField::class,
+            'bard' => ExtractBardField::class,
+            'replicator' => ExtractReplicatorField::class,
+            'grid' => ExtractGridField::class,
+            'select' => ExtractSelectField::class,
         ],
-    ]
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ignored Field Types
+        |--------------------------------------------------------------------------
+        |
+        | Field types listed here are never extracted, regardless of collection
+        | configuration. These are types that don't produce useful text for
+        | embedding purposes.
+        |
+        */
+        'ignored_field_types' => [
+            'toggle', 'color', 'assets', 'hidden', 'revealer',
+            'spacer', 'section', 'icon', 'video', 'width',
+            'slug', 'template', 'date', 'time', 'integer',
+            'floatval', 'range',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Only Published
+        |--------------------------------------------------------------------------
+        |
+        | When true, only published entries will be processed. Draft entries
+        | will be skipped to avoid embedding in-progress content.
+        |
+        */
+        'only_published' => true,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Collections
+        |--------------------------------------------------------------------------
+        |
+        | Define which collections should have their entries extracted.
+        | Only collections listed here will be processed.
+        |
+        | You MUST explicitly list which fields to extract. If 'fields' is
+        | missing or empty, nothing will be extracted for that collection.
+        | This prevents accidentally exposing sensitive data.
+        |
+        | Example:
+        |   'pages' => [
+        |       'fields' => ['title', 'page_builder'],
+        |   ],
+        |
+        | Custom extractor per field:
+        |   'pages' => [
+        |       'fields' => [
+        |           'title',
+        |           'custom_field' => [\App\Pipes\MyCustomExtractor::class],
+        |       ],
+        |   ],
+        |
+        */
+        'collections' => [
+            'pages' => [
+                'fields' => ['title', 'page_builder'],
+            ],
+        ],
+    ],
 ];

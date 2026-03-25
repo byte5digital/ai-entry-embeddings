@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings;
 
-use Byte5\AiEntryEmbeddings\Ai\Agents\Rag\ChatAgent;
-use Byte5\AiEntryEmbeddings\Ai\Agents\Simplifier\EntrySimplifierAgent;
-use Byte5\AiEntryEmbeddings\Ai\Contracts\ChatAgentInterface;
-use Byte5\AiEntryEmbeddings\Ai\Contracts\EntrySimplifierAgentInterface;
-use Byte5\AiEntryEmbeddings\Ai\Pipelines\RagPipeline;
-use Byte5\AiEntryEmbeddings\Services\ContentChunker;
-use Byte5\AiEntryEmbeddings\Services\EmbeddingService;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
 use Statamic\CP\Navigation\Nav;
 use Statamic\Facades\CP\Nav as NavAPI;
 use Statamic\Facades\Permission;
@@ -42,6 +37,9 @@ final class ServiceProvider extends AddonServiceProvider
         parent::register();
 
         $this->mergeConfigFrom(__DIR__.'/../config/ai-entry-embeddings.php', 'ai-entry-embeddings');
+
+        $this->app->singleton(FieldExtractorResolver::class);
+        $this->app->singleton(ContentExtractionPipeline::class);
     }
 
     private function bootNav(): void
