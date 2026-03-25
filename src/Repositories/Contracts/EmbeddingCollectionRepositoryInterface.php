@@ -32,4 +32,9 @@ interface EmbeddingCollectionRepositoryInterface
      * Whether only published entries should be processed.
      */
     public function onlyPublished(): bool;
+
+    /**
+     * Whether embeddings should be kept when their source entry is deleted.
+     */
+    public function keepDeletedEntryEmbeddings(): bool;
 }

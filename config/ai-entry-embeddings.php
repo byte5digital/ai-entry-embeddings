@@ -93,6 +93,18 @@ return [
     ],
 
     /*
+      |--------------------------------------------------------------------------
+      | Keep Deleted Entry Embeddings
+      |--------------------------------------------------------------------------
+      |
+      | When false, embeddings are automatically deleted when their source entry
+      | is deleted from Statamic. Set to true to preserve embeddings even after
+      | the entry is removed.
+      |
+    */
+    'keep_deleted_entry_embeddings' => false,
+
+    /*
     |--------------------------------------------------------------------------
     | Embeddings
     |--------------------------------------------------------------------------

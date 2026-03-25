@@ -63,6 +63,12 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
     }
 
     /** @inheritDoc */
+    public function deleteForEntry(string $entryId): void
+    {
+        EntryEmbedding::query()->where('entry_id', $entryId)->delete();
+    }
+
+    /** @inheritDoc */
     public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array
     {
         $query = EntryEmbedding::query()

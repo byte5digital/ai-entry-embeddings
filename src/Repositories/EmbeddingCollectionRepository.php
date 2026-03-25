@@ -50,4 +50,13 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
             true
         );
     }
+
+    /** @inheritDoc */
+    public function keepDeletedEntryEmbeddings(): bool
+    {
+        return (bool) $this->config->get(
+            'ai-entry-embeddings.keep_deleted_entry_embeddings',
+            false
+        );
+    }
 }

@@ -32,4 +32,9 @@ interface EntryEmbeddingServiceInterface
      * @return array{paginator: LengthAwarePaginator, activeFilterBadges: array<int, mixed>}
      */
     public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array;
+
+    /**
+     * Delete all embedding chunks for a given entry.
+     */
+    public function deleteForEntry(string $entryId): void;
 }
