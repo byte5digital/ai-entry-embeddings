@@ -12,4 +12,10 @@ return [
             'description' => 'View and manage AI-generated entry embeddings.',
         ],
     ],
+    'collections'=>[
+        'no_config'=>[
+            'title'=>'No collections configured yet.',
+            'description'=>'Add collections to the extraction pipeline in your config file to start generating embeddings.',
+        ]
+    ]
 ];

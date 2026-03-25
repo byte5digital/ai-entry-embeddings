@@ -1,9 +1,13 @@
 <script setup>
-import {Head, Link} from '@statamic/cms/inertia';
-import {CardPanel, Header, Heading, Subheading} from '@statamic/cms/ui';
+import { Head, Link } from '@statamic/cms/inertia';
+import { Badge, CardPanel, EmptyStateItem, Header, Listing } from '@statamic/cms/ui';
 
 const props = defineProps({
-    entries: {
+    collections: {
+        type: Array,
+        default: () => [],
+    },
+    columns: {
         type: Array,
         default: () => [],
     },
@@ -11,29 +15,49 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head :title="__('ai-entry-embeddings::navigation.main.title')"/>
+    <Head :title="__('ai-entry-embeddings::frontend.navigation.main.title')"/>
     <div class="max-w-page mx-auto">
-        <Header :title="__('ai-entry-embeddings::navigation.main.title')" icon="ai-spark">
-        </Header>
+        <Header :title="__('ai-entry-embeddings::frontend.navigation.main.title')" icon="ai-spark"/>
     </div>
-    <CardPanel>
-        <div class="flex flex-wrap starting-style-transition-children">
-            <Link
-                v-for="entry in entries"
-                :key="entry.url"
-                :href="entry.url"
-                class="group w-full items-start rounded-md border border-transparent px-2 py-3 lg:p-4 hover:bg-gray-100 dark:hover:bg-gray-800 md:flex lg:w-1/2"
-            >
-                <div v-if="entry.icon" class="size-6 text-gray-400 mt-1 mb-2 me-4" v-html="entry.icon"/>
-                <div class="flex-1 md:me-6">
-                    <Heading :text="entry.title" size="lg"/>
-                    <Subheading v-text="entry.description"/>
-                </div>
+
+    <Listing
+        v-if="collections.length"
+        :items="collections"
+        :columns="columns"
+        :allowSearch="false"
+        :allowCustomizingColumns="false"
+    >
+        <template #cell-title="{ row: collection }">
+            <Link :href="collection.url" class="flex items-center gap-2">
+                {{ collection.title }}
             </Link>
-        </div>
+        </template>
+        <template #cell-embeddings="{ row: collection }">
+            <div class="flex items-center gap-2">
+                <Badge
+                    v-if="collection.embedded_chunks > 0"
+                    color="green"
+                    :text="__('Embedded')"
+                    :append="collection.embedded_chunks"
+                    pill
+                />
+                <Badge
+                    v-if="collection.pending_chunks > 0"
+                    color="yellow"
+                    :text="__('Pending')"
+                    :append="collection.pending_chunks"
+                    pill
+                />
+                <Badge
+                    v-if="collection.total_chunks === 0"
+                    :text="__('No chunks')"
+                    pill
+                />
+            </div>
+        </template>
+    </Listing>
+
+    <CardPanel v-else :heading="__('ai-entry-embeddings::frontend.collections.no_config.title')">
+        {{ __('ai-entry-embeddings::frontend.collections.no_config.description') }}
     </CardPanel>
 </template>
-
-<style scoped>
-
-</style>
