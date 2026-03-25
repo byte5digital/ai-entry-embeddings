@@ -68,7 +68,9 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         EntryEmbedding::query()->where('entry_id', $entryId)->delete();
     }
 
-    /** @inheritDoc */
+    /**
+     * @return array{paginator: \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
+     */
     public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array
     {
         $query = EntryEmbedding::query()
@@ -98,7 +100,9 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         ];
     }
 
-    /** @inheritDoc */
+    /**
+     * @return array{paginator: \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
+     */
     public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array
     {
         $query = EntryEmbedding::query()

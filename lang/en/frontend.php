@@ -22,9 +22,14 @@ return [
         ]
     ],
     'not_found' => [
-        'title' => 'Collection not found.',
-        'description' => 'The requested collection is not configured, or does not exist. Please check your configuration and try again.',
-        'back' => 'Back to safety',
+        'collection' => [
+            'title' => 'Collection not found.',
+            'description' => 'The requested collection is not configured, or does not exist. Please check your configuration and try again.',
+        ],
+        'entry' => [
+            'title' => 'Entry not found.',
+            'description' => 'The requested entry does not exist, does not belong to this collection, or was not processed yet.',
+        ],
     ],
     'embedding' => [
         'columns' => [

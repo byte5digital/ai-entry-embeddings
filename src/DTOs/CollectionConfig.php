@@ -39,7 +39,14 @@ final readonly class CollectionConfig
                 $fields[] = $value;
             } elseif (is_string($key) && is_array($value)) {
                 $fields[] = $key;
-                $customExtractors[$key] = $value;
+                $extractors = [];
+                foreach ($value as $extractorClass) {
+                    if (! is_string($extractorClass) || ! is_a($extractorClass, FieldExtractorInterface::class, true)) {
+                        throw InvalidCollectionConfigException::invalidFieldEntry($handle, count($fields) - 1);
+                    }
+                    $extractors[] = $extractorClass;
+                }
+                $customExtractors[$key] = $extractors;
             } else {
                 throw InvalidCollectionConfigException::invalidFieldEntry($handle, is_int($key) ? $key : count($fields));
             }

@@ -17,9 +17,10 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
     /** @inheritDoc */
     public function handles(): array
     {
-        return array_keys(
-            $this->config->get('ai-entry-embeddings.extraction_pipeline.collections', [])
-        );
+        return array_values(array_filter(
+            array_keys($this->config->get('ai-entry-embeddings.extraction_pipeline.collections', [])),
+            'is_string'
+        ));
     }
 
     /** @inheritDoc */

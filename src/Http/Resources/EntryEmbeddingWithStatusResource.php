@@ -9,7 +9,8 @@ use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Statamic\CP\Column;
-use Statamic\Facades\Entry;
+use Statamic\Entries\Entry;
+use Statamic\Facades\Entry as EntryFacade;
 
 /**
  * @mixin EntryEmbedding
@@ -19,11 +20,11 @@ final class EntryEmbeddingWithStatusResource extends JsonResource
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
-        $entry = Entry::find($this->entry_id);
+        $entry = EntryFacade::find($this->entry_id);
 
         return [
             'id' => $this->entry_id,
-            'title' => $entry?->get('title') ?? $this->entry_id,
+            'title' => $entry instanceof Entry ? ($entry->get('title') ?? $this->entry_id) : $this->entry_id,
             'entry_id' => $this->entry_id,
             'collection_handle' => $this->collection_handle,
             'site_handle' => $this->site_handle,
