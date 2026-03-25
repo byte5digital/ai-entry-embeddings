@@ -91,4 +91,21 @@ return [
             ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Embeddings
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for vector embedding generation.
+    |
+    | The dimensions value is used during migration to define the database
+    | column size. Changing this value after migration requires a new
+    | migration to alter the column, and all existing embeddings must be
+    | regenerated (old vectors are incompatible with a new dimension size).
+    |
+    */
+    'embeddings' => [
+        'dimensions' => 1536,
+    ],
 ];

@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings;
 
+use Byte5\AiEntryEmbeddings\Events\Extraction\ContentExtracted;
+use Byte5\AiEntryEmbeddings\Listeners\StoreExtractedChunksListener;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
+use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
+use Byte5\AiEntryEmbeddings\Services\EntryEmbeddingService;
 use Statamic\CP\Navigation\Nav;
 use Statamic\Facades\CP\Nav as NavAPI;
 use Statamic\Facades\Permission;
@@ -13,6 +17,12 @@ use Statamic\Providers\AddonServiceProvider;
 
 final class ServiceProvider extends AddonServiceProvider
 {
+    protected $listen = [
+        ContentExtracted::class => [
+            StoreExtractedChunksListener::class,
+        ],
+    ];
+
     protected $vite = [
         'input' => [
             'resources/js/addon.js',
@@ -40,6 +50,7 @@ final class ServiceProvider extends AddonServiceProvider
 
         $this->app->singleton(FieldExtractorResolver::class);
         $this->app->singleton(ContentExtractionPipeline::class);
+        $this->app->bind(EntryEmbeddingServiceInterface::class, EntryEmbeddingService::class);
     }
 
     private function bootNav(): void
