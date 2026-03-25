@@ -18,6 +18,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property array<string, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @property-read int $entries_count
+ * @property-read int $total_chunks
+ * @property-read int $embedded_chunks
+ * @property-read int $pending_chunks
  */
 class EntryEmbedding extends Model
 {
@@ -32,4 +37,10 @@ class EntryEmbedding extends Model
             'metadata' => 'array',
         ];
     }
+
+    public function getPendingChunksAttribute(): int
+    {
+        return ($this->total_chunks ?? 0) - ($this->embedded_chunks ?? 0);
+    }
+
 }

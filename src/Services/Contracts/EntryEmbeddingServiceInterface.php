@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Services\Contracts;
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Statamic\Http\Requests\FilteredRequest;
 
 interface EntryEmbeddingServiceInterface
 {
@@ -19,4 +22,14 @@ interface EntryEmbeddingServiceInterface
         string $siteHandle,
         array $chunks,
     ): void;
+
+    /**
+     * @return Collection<string, \Byte5\AiEntryEmbeddings\Models\EntryEmbedding>
+     */
+    public function getCollectionStats(): Collection;
+
+    /**
+     * @return array{paginator: LengthAwarePaginator, activeFilterBadges: array<int, mixed>}
+     */
+    public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array;
 }

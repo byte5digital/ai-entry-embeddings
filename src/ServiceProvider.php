@@ -6,6 +6,7 @@ namespace Byte5\AiEntryEmbeddings;
 
 use Byte5\AiEntryEmbeddings\Events\Extraction\ContentExtracted;
 use Byte5\AiEntryEmbeddings\Listeners\StoreExtractedChunksListener;
+use Byte5\AiEntryEmbeddings\Query\Scopes\Filters\EmbeddingSiteFilter;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
@@ -17,6 +18,10 @@ use Statamic\Providers\AddonServiceProvider;
 
 final class ServiceProvider extends AddonServiceProvider
 {
+    protected $scopes = [
+        EmbeddingSiteFilter::class,
+    ];
+
     protected $listen = [
         ContentExtracted::class => [
             StoreExtractedChunksListener::class,
@@ -55,16 +60,24 @@ final class ServiceProvider extends AddonServiceProvider
 
     private function bootNav(): void
     {
-        NavAPI::extend(fn (Nav $nav) => $nav
-            ->content(__('ai-entry-embeddings::navigation.main.title'))
-            ->section('AI Tools')
-            ->can('view AI entry embeddings')
-            ->route('ai-entry-embeddings.landingPage')
-            ->icon('ai-spark')
-            ->children([
-                $nav->item(__('ai-entry-embeddings::navigation.generated_embeddings.title'))->route('ai-entry-embeddings.generatedEmbeddings'),
-            ])
-        );
+        NavAPI::extend(function (Nav $nav) {
+            $collections = array_keys(
+                config('ai-entry-embeddings.extraction_pipeline.collections', [])
+            );
+
+            $children = array_map(
+                fn (string $handle) => $nav->item(ucfirst($handle))
+                    ->route('ai-entry-embeddings.generatedEmbeddings', ['embeddingCollection' => $handle]),
+                $collections
+            );
+
+            $nav->content(__('ai-entry-embeddings::frontend.navigation.main.title'))
+                ->section('AI Tools')
+                ->can('view AI entry embeddings')
+                ->route('ai-entry-embeddings.landingPage')
+                ->icon('ai-spark')
+                ->children($children);
+        });
     }
 
     private function bootPermissions(): void

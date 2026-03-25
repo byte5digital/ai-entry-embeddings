@@ -1,33 +1,28 @@
 <script setup>
-import { Head, Link } from '@statamic/cms/inertia';
+import { Head } from '@statamic/cms/inertia';
 import { Badge, Header, Listing } from '@statamic/cms/ui';
 
 const props = defineProps({
     listingUrl: { type: String, required: true },
+    filters: { type: Array, default: () => [] },
 });
 </script>
 
 <template>
-    <Head :title="__('ai-entry-embeddings::navigation.generated_embeddings.title')"/>
+    <Head :title="__('ai-entry-embeddings::frontend.navigation.generated_embeddings.title')"/>
     <div class="max-w-page mx-auto">
-        <Header :title="__('ai-entry-embeddings::navigation.generated_embeddings.title')">
+        <Header :title="__('ai-entry-embeddings::frontend.navigation.generated_embeddings.title')">
         </Header>
     </div>
     <Listing
-        :allowCustomizingColumns=false
+        :allowCustomizingColumns="false"
+        :filters="filters"
         :url="listingUrl">
-        <template #cell-processing_status="{ value }">
+        <template #cell-embedding_status="{ value }">
             <Badge
-                :color="value === 'processed' ? 'green' : value === 'failed' ? 'red' : value === 'processing' ? 'blue' : 'yellow'"
+                :color="value === 'generated' ? 'green' : value === 'partial' ? 'blue' : 'yellow'"
                 :text="value"
             />
-        </template>
-        <template #cell-entry_edit_url="{ value }">
-            <Link v-if="value" :href="value"
-                  class="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                {{ __('View') }}
-            </Link>
-            <span v-else class="text-gray-400">&mdash;</span>
         </template>
     </Listing>
 </template>
