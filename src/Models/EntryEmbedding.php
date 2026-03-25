@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $content
  * @property array<int, float>|null $embedding
  * @property array<string, mixed>|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class EntryEmbedding extends Model
 {
