@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
-use Illuminate\Pipeline\Pipeline;
 use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
@@ -13,7 +12,6 @@ final readonly class ContentExtractionPipeline
 {
     public function __construct(
         private FieldExtractorResolver $resolver,
-        private Pipeline $pipeline,
     ) {}
 
     public function process(StatamicEntry $entry): ExtractionPayload
@@ -59,16 +57,7 @@ final readonly class ContentExtractionPipeline
             $payload->addChunks($chunks);
         }
 
-        $postPipes = $config['post_pipes'] ?? [];
-
-        if ($postPipes === []) {
-            return $payload;
-        }
-
-        return $this->pipeline
-            ->send($payload)
-            ->through($postPipes)
-            ->thenReturn();
+        return $payload;
     }
 
     /**
