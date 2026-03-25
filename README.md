@@ -173,4 +173,4 @@ The addon registers a navigation section under **AI Tools** in the Statamic cont
 
 ## License
 
-This addon is open-sourced software licensed under the [GNU General Public License v3.0](LICENSE).
+This addon is open-sourced software licensed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](LICENSE) for details.
