@@ -8,10 +8,10 @@ use Byte5\AiEntryEmbeddings\Events\Extraction\ContentExtracted;
 use Byte5\AiEntryEmbeddings\Jobs\GenerateEntryEmbeddingsJob;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 
-final class StoreExtractedChunksListener
+final readonly class StoreExtractedChunksListener
 {
     public function __construct(
-        private readonly EntryEmbeddingServiceInterface $service,
+        private EntryEmbeddingServiceInterface $service,
     ) {}
 
     public function handle(ContentExtracted $event): void
@@ -25,6 +25,6 @@ final class StoreExtractedChunksListener
             chunks: $payload->getChunks(),
         );
 
-        GenerateEntryEmbeddingsJob::dispatch($payload->entry);
+        dispatch(new GenerateEntryEmbeddingsJob($payload->entry));
     }
 }

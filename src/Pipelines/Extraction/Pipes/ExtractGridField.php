@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 
+use Illuminate\Support\Collection;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
@@ -11,10 +12,10 @@ use Statamic\Contracts\Entries\Entry;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
 
-final class ExtractGridField implements FieldExtractorInterface
+final readonly class ExtractGridField implements FieldExtractorInterface
 {
     public function __construct(
-        private readonly FieldExtractorResolver $resolver,
+        private FieldExtractorResolver $resolver,
     ) {}
 
     public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
@@ -23,8 +24,8 @@ final class ExtractGridField implements FieldExtractorInterface
             return [];
         }
 
-        $basePath = $parentPath !== '' ? "{$parentPath}.{$fieldHandle}" : $fieldHandle;
-        $columnsConfig = $field->fieldtype()->config('fields') ?? [];
+        $basePath = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
+        $columnsConfig = $field->fieldtype()->config('fields', []);
 
         // Resolve field references into proper Field objects
         $resolvedColumns = (new Fields($columnsConfig))->all();
@@ -35,7 +36,7 @@ final class ExtractGridField implements FieldExtractorInterface
                 continue;
             }
 
-            $rowPath = "{$basePath}.row.{$rowIndex}";
+            $rowPath = sprintf('%s.row.%s', $basePath, $rowIndex);
             $rowChunks = $this->extractRow($entry, $fieldHandle, $row, $resolvedColumns, $rowPath, $rowIndex);
             array_push($chunks, ...$rowChunks);
         }
@@ -50,14 +51,14 @@ final class ExtractGridField implements FieldExtractorInterface
      * Compound sub-fields produce their own chunks.
      *
      * @param  array<string, mixed>  $row
-     * @param  \Illuminate\Support\Collection<string, Field>  $resolvedColumns
+     * @param Collection<string, Field> $resolvedColumns
      * @return ContentChunk[]
      */
     private function extractRow(
         Entry $entry,
         string $fieldHandle,
         array $row,
-        $resolvedColumns,
+        Collection $resolvedColumns,
         string $rowPath,
         int $rowIndex,
     ): array {
@@ -67,8 +68,13 @@ final class ExtractGridField implements FieldExtractorInterface
         foreach ($resolvedColumns as $columnField) {
             $columnHandle = $columnField->handle();
             $cellValue = $row[$columnHandle] ?? null;
-
-            if ($cellValue === null || $cellValue === '' || $cellValue === []) {
+            if ($cellValue === null) {
+                continue;
+            }
+            if ($cellValue === '') {
+                continue;
+            }
+            if ($cellValue === []) {
                 continue;
             }
 
@@ -76,7 +82,7 @@ final class ExtractGridField implements FieldExtractorInterface
 
             $extractor = $this->resolver->resolve($columnType, $columnHandle);
 
-            if ($extractor === null) {
+            if (!$extractor instanceof FieldExtractorInterface) {
                 if (is_string($cellValue)) {
                     $mergedParts[] = $cellValue;
                 }

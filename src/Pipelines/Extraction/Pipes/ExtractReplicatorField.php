@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 
+use Illuminate\Support\Collection;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
@@ -11,10 +12,10 @@ use Statamic\Contracts\Entries\Entry;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
 
-final class ExtractReplicatorField implements FieldExtractorInterface
+final readonly class ExtractReplicatorField implements FieldExtractorInterface
 {
     public function __construct(
-        private readonly FieldExtractorResolver $resolver,
+        private FieldExtractorResolver $resolver,
     ) {}
 
     public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
@@ -24,7 +25,7 @@ final class ExtractReplicatorField implements FieldExtractorInterface
         }
 
         $setsConfig = $field->fieldtype()->flattenedSetsConfig();
-        $basePath = $parentPath !== '' ? "{$parentPath}.{$fieldHandle}" : $fieldHandle;
+        $basePath = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
         $chunks = [];
 
         foreach ($value as $setIndex => $set) {
@@ -38,11 +39,14 @@ final class ExtractReplicatorField implements FieldExtractorInterface
             }
 
             $setType = $set['type'] ?? null;
-            if ($setType === null || ! isset($setsConfig[$setType])) {
+            if ($setType === null) {
+                continue;
+            }
+            if (! isset($setsConfig[$setType])) {
                 continue;
             }
 
-            $setPath = "{$basePath}.{$setType}.{$setIndex}";
+            $setPath = sprintf('%s.%s.%s', $basePath, $setType, $setIndex);
             $setFieldDefinitions = $setsConfig[$setType]['fields'] ?? [];
 
             // Resolve field references (e.g., "common.text_rich") into proper Field objects
@@ -62,14 +66,14 @@ final class ExtractReplicatorField implements FieldExtractorInterface
      * Compound sub-fields (returning multiple chunks) are kept as separate chunks.
      *
      * @param  array<string, mixed>  $set
-     * @param  \Illuminate\Support\Collection<string, Field>  $resolvedFields
+     * @param Collection<string, Field> $resolvedFields
      * @return ContentChunk[]
      */
     private function extractSet(
         Entry $entry,
         string $fieldHandle,
         array $set,
-        $resolvedFields,
+        Collection $resolvedFields,
         string $setPath,
         string $setType,
         int $setIndex,
@@ -80,8 +84,13 @@ final class ExtractReplicatorField implements FieldExtractorInterface
         foreach ($resolvedFields as $setField) {
             $setFieldHandle = $setField->handle();
             $setFieldValue = $set[$setFieldHandle] ?? null;
-
-            if ($setFieldValue === null || $setFieldValue === '' || $setFieldValue === []) {
+            if ($setFieldValue === null) {
+                continue;
+            }
+            if ($setFieldValue === '') {
+                continue;
+            }
+            if ($setFieldValue === []) {
                 continue;
             }
 
@@ -89,7 +98,7 @@ final class ExtractReplicatorField implements FieldExtractorInterface
 
             $extractor = $this->resolver->resolve($setFieldType, $setFieldHandle);
 
-            if ($extractor === null) {
+            if (!$extractor instanceof FieldExtractorInterface) {
                 if (is_string($setFieldValue)) {
                     $mergedParts[] = $setFieldValue;
                 }

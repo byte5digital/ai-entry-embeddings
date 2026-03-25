@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Laravel\Ai\Embeddings;
 use Statamic\Contracts\Entries\Entry as StatamicEntry;
-use Throwable;
 
 final class GenerateEntryEmbeddingsJob implements ShouldQueue
 {
@@ -30,7 +29,7 @@ final class GenerateEntryEmbeddingsJob implements ShouldQueue
 
     public function handle(): void
     {
-        $rows = EntryEmbedding::where('entry_id', $this->entry->id())
+        $rows = EntryEmbedding::query()->where('entry_id', $this->entry->id())
             ->where('collection_handle', $this->entry->collectionHandle())
             ->whereNull('embedding')
             ->get();
@@ -50,6 +49,4 @@ final class GenerateEntryEmbeddingsJob implements ShouldQueue
             $row->update(['embedding' => $response->embeddings[$index]]);
         }
     }
-
-    public function failed(Throwable $exception): void {}
 }

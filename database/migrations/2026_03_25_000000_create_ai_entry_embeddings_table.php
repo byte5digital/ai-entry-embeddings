@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::ensureVectorExtensionExists();
 
-        Schema::create('ai_entry_embeddings', function (Blueprint $table) {
+        Schema::create('ai_entry_embeddings', function (Blueprint $table): void {
             $table->id();
             $table->string('entry_id')->index()->comment('Statamic entry identifier');
             $table->string('collection_handle')->index()->comment('Statamic collection handle, e.g. "pages"');

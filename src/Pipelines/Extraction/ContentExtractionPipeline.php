@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Illuminate\Pipeline\Pipeline;
 use Statamic\Contracts\Entries\Entry;
 use Statamic\Fields\Field;
 
-final class ContentExtractionPipeline
+final readonly class ContentExtractionPipeline
 {
     public function __construct(
-        private readonly FieldExtractorResolver $resolver,
-        private readonly Pipeline $pipeline,
+        private FieldExtractorResolver $resolver,
+        private Pipeline $pipeline,
     ) {}
 
     public function process(Entry $entry): ExtractionPayload
     {
         $collectionHandle = $entry->collectionHandle();
-        $config = config("ai-entry-embeddings.extraction_pipeline.collections.{$collectionHandle}", []);
+        $config = config('ai-entry-embeddings.extraction_pipeline.collections.' . $collectionHandle, []);
         $siteHandle = $entry->site()?->handle() ?? 'default';
 
         $payload = new ExtractionPayload(
@@ -32,8 +33,13 @@ final class ContentExtractionPipeline
 
         foreach ($fields as $fieldHandle => $fieldMeta) {
             $value = $entry->get($fieldHandle);
-
-            if ($value === null || $value === '' || $value === []) {
+            if ($value === null) {
+                continue;
+            }
+            if ($value === '') {
+                continue;
+            }
+            if ($value === []) {
                 continue;
             }
 
@@ -43,7 +49,7 @@ final class ContentExtractionPipeline
                 customPipes: $fieldMeta['custom_pipes'],
             );
 
-            if ($extractor === null) {
+            if (!$extractor instanceof FieldExtractorInterface) {
                 continue;
             }
 

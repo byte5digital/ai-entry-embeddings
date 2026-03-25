@@ -13,11 +13,11 @@ final class ExtractSelectField implements FieldExtractorInterface
 {
     public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
-        if ($value === null || $value === '' || $value === []) {
+        if (in_array($value, [null, '', []], true)) {
             return [];
         }
 
-        $options = $field->fieldtype()->config('options') ?? [];
+        $options = $field->fieldtype()->config('options', []);
         $values = is_array($value) ? $value : [$value];
 
         $labels = [];
@@ -32,7 +32,7 @@ final class ExtractSelectField implements FieldExtractorInterface
             return [];
         }
 
-        $path = $parentPath !== '' ? "{$parentPath}.{$fieldHandle}" : $fieldHandle;
+        $path = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
 
         return [
             new ContentChunk(

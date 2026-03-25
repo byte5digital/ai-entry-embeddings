@@ -28,7 +28,7 @@ final class ExtractMarkdownField implements FieldExtractorInterface
             return [];
         }
 
-        $path = $parentPath !== '' ? "{$parentPath}.{$fieldHandle}" : $fieldHandle;
+        $path = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
 
         return [
             new ContentChunk(

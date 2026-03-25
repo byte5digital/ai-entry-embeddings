@@ -7,10 +7,10 @@ namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Illuminate\Contracts\Container\Container;
 
-final class FieldExtractorResolver
+final readonly class FieldExtractorResolver
 {
     public function __construct(
-        private readonly Container $container,
+        private Container $container,
     ) {}
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class EntryEmbedding extends Model
 {
+    use HasFactory;
     protected $table = 'ai_entry_embeddings';
 
     protected $guarded = [];

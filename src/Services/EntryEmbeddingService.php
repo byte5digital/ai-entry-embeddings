@@ -20,14 +20,14 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         string $siteHandle,
         array $chunks,
     ): void {
-        DB::transaction(function () use ($entryId, $collectionHandle, $siteHandle, $chunks) {
-            EntryEmbedding::where('entry_id', $entryId)
+        DB::transaction(function () use ($entryId, $collectionHandle, $siteHandle, $chunks): void {
+            EntryEmbedding::query()->where('entry_id', $entryId)
                 ->where('collection_handle', $collectionHandle)
                 ->delete();
 
             $now = now();
 
-            $rows = array_map(fn (ContentChunk $chunk) => [
+            $rows = array_map(fn (ContentChunk $chunk): array => [
                 'entry_id' => $entryId,
                 'collection_handle' => $collectionHandle,
                 'site_handle' => $siteHandle,
@@ -39,7 +39,7 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
                 'updated_at' => $now,
             ], $chunks);
 
-            EntryEmbedding::insert($rows);
+            EntryEmbedding::query()->insert($rows);
         });
     }
 }

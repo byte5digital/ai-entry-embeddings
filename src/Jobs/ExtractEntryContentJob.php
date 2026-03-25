@@ -13,7 +13,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Statamic\Contracts\Entries\Entry as StatamicEntry;
-use Throwable;
 
 final class ExtractEntryContentJob implements ShouldBeUnique, ShouldQueue
 {
@@ -40,13 +39,11 @@ final class ExtractEntryContentJob implements ShouldBeUnique, ShouldQueue
         $payload = $pipeline->process($this->entry);
 
         if ($payload->getChunks() === []) {
-            EmptyExtractionCompleted::dispatch($payload);
+            event(new EmptyExtractionCompleted($payload));
 
             return;
         }
 
-        ContentExtracted::dispatch($payload);
+        event(new ContentExtracted($payload));
     }
-
-    public function failed(Throwable $exception): void {}
 }
