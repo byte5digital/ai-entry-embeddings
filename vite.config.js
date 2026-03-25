@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/addon.css'
             ],
             publicDirectory: 'resources/dist',
+            hotFile: 'resources/dist/hot',
         }),
         statamic(),
         tailwindcss(),
