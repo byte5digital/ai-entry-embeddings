@@ -29,6 +29,10 @@ final class EntryEmbeddingWithStatusResource extends JsonResource
             'site_handle' => $this->site_handle,
             'embedding_status' => EmbeddingStatus::fromChunks($this->embedded_chunks, $this->total_chunks)->value,
             'updated_at' => $this->updated_at,
+            'url' => cp_route('ai-entry-embeddings.entryEmbeddingChunks', [
+                'embeddingCollection' => $this->collection_handle,
+                'embeddingEntryId' => $this->entry_id,
+            ]),
         ];
     }
 

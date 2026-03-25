@@ -1,6 +1,7 @@
 <script setup>
-import { Head } from '@statamic/cms/inertia';
+import { Head, Link } from '@statamic/cms/inertia';
 import { Badge, Header, Listing } from '@statamic/cms/ui';
+import { formatDate } from '../js/formatDate';
 
 const props = defineProps({
     listingUrl: { type: String, required: true },
@@ -18,11 +19,19 @@ const props = defineProps({
         :allowCustomizingColumns="false"
         :filters="filters"
         :url="listingUrl">
+        <template #cell-title="{ row: entry }">
+            <Link :href="entry.url" class="flex items-center gap-2 font-bold">
+                {{ entry.title }}
+            </Link>
+        </template>
         <template #cell-embedding_status="{ value }">
             <Badge
                 :color="value === 'generated' ? 'green' : value === 'partial' ? 'blue' : 'yellow'"
                 :text="value"
             />
+        </template>
+        <template #cell-updated_at="{ value }">
+            {{ formatDate(value) }}
         </template>
     </Listing>
 </template>

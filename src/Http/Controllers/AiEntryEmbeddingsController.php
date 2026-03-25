@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Http\Controllers;
 
 use Byte5\AiEntryEmbeddings\Http\Resources\EmbeddingCollectionsCollection;
+use Byte5\AiEntryEmbeddings\Http\Resources\EntryEmbeddingChunksCollection;
 use Byte5\AiEntryEmbeddings\Http\Resources\EntryEmbeddingWithStatusesCollection;
 use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 use Inertia\Inertia;
 use Inertia\Response;
+use Statamic\Facades\Entry;
 use Statamic\Facades\Scope;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Http\Requests\FilteredRequest;
@@ -61,7 +63,7 @@ final class AiEntryEmbeddingsController extends CpController
         return Inertia::render('ai-entry-embeddings::GeneratedEmbeddings', [
             'listingUrl' => cp_route('ai-entry-embeddings.embeddings.list', ['embeddingCollection' => $embeddingCollection]),
             'filters' => Scope::filters('embeddings'),
-            'collection' => $embeddingCollection,
+            'embeddingCollection' => $embeddingCollection,
         ]);
     }
 
@@ -73,6 +75,44 @@ final class AiEntryEmbeddingsController extends CpController
         $result = $service->getFilteredEmbeddings($request, $embeddingCollection);
 
         return (new EntryEmbeddingWithStatusesCollection($result['paginator']))
+            ->additional([
+                'activeFilterBadges' => $result['activeFilterBadges'],
+            ]);
+    }
+
+    public function entryEmbeddingChunks(
+        string $embeddingCollection,
+        string $embeddingEntryId,
+        EmbeddingCollectionRepositoryInterface $repository,
+    ): Response|SymfonyResponse {
+        if (! $repository->exists($embeddingCollection)) {
+            return Inertia::render('ai-entry-embeddings::NotFound')
+                ->toResponse(request())
+                ->setStatusCode(404);
+        }
+        $entry = Entry::find($embeddingEntryId);
+        $entryTitle = $entry?->get('title') ?? $embeddingEntryId;
+
+        return Inertia::render('ai-entry-embeddings::EntryEmbeddingChunks', [
+            'listingUrl' => cp_route('ai-entry-embeddings.entryEmbeddingChunks.list', [
+                'embeddingCollection' => $embeddingCollection,
+                'embeddingEntryId' => $embeddingEntryId,
+            ]),
+            'embeddingCollection' => $embeddingCollection,
+            'embeddingEntryId' => $embeddingEntryId,
+            'entryTitle' => $entryTitle,
+        ]);
+    }
+
+    public function listEntryEmbeddingChunks(
+        FilteredRequest $request,
+        EntryEmbeddingServiceInterface $service,
+        string $embeddingCollection,
+        string $embeddingEntryId,
+    ): EntryEmbeddingChunksCollection {
+        $result = $service->getFilteredEntryChunks($request, $embeddingCollection, $embeddingEntryId);
+
+        return (new EntryEmbeddingChunksCollection($result['paginator']))
             ->additional([
                 'activeFilterBadges' => $result['activeFilterBadges'],
             ]);

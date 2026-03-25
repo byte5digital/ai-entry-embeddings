@@ -37,4 +37,9 @@ interface EntryEmbeddingServiceInterface
      * Delete all embedding chunks for a given entry.
      */
     public function deleteForEntry(string $entryId): void;
+
+    /**
+     * @return array{paginator: LengthAwarePaginator, activeFilterBadges: array<int, mixed>}
+     */
+    public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array;
 }

@@ -24,7 +24,7 @@ const props = defineProps({
         :allowCustomizingColumns="false"
     >
         <template #cell-title="{ row: collection }">
-            <Link :href="collection.url" class="flex items-center gap-2">
+            <Link :href="collection.url" class="flex items-center gap-2 font-bold">
                 {{ collection.title }}
             </Link>
         </template>

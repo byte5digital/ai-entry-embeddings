@@ -97,4 +97,29 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
             'activeFilterBadges' => $activeFilterBadges,
         ];
     }
+
+    /** @inheritDoc */
+    public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array
+    {
+        $query = EntryEmbedding::query()
+            ->where('collection_handle', $collection)
+            ->where('entry_id', $entryId);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('content', 'like', "%{$search}%")
+                    ->orWhere('field_handle', 'like', "%{$search}%")
+                    ->orWhere('path', 'like', "%{$search}%");
+            });
+        }
+
+        $sortField = $request->input('sort', 'updated_at');
+        $sortDirection = $request->input('order', 'desc');
+        $query->orderBy($sortField, $sortDirection);
+
+        return [
+            'paginator' => $query->paginate($request->input('perPage', 15)),
+            'activeFilterBadges' => [],
+        ];
+    }
 }

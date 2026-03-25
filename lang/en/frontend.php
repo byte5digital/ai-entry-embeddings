@@ -11,6 +11,9 @@ return [
             'title' => 'Generated Embeddings',
             'description' => 'View and manage AI-generated entry embeddings.',
         ],
+        'entry_embedding_chunks' => [
+            'title' => 'Entry Embedding Chunks',
+        ],
     ],
     'collections'=>[
         'no_config'=>[
@@ -29,6 +32,16 @@ return [
             'entry_id' => 'Entry ID',
             'site_handle' => 'Site',
             'embedding_status' => 'Embedding',
+            'updated_at' => 'Updated',
+        ],
+    ],
+    'chunk' => [
+        'columns' => [
+            'field_handle' => 'Field',
+            'path' => 'Path',
+            'content' => 'Content',
+            'embedding_status' => 'Status',
+            'metadata' => 'Metadata',
             'updated_at' => 'Updated',
         ],
     ],
