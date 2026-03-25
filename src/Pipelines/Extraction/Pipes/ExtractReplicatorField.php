@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 
-use Illuminate\Support\Collection;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
-use Statamic\Contracts\Entries\Entry;
+use Illuminate\Support\Collection;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
 
@@ -18,7 +18,7 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
         private FieldExtractorResolver $resolver,
     ) {}
 
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
         if (! is_array($value)) {
             return [];
@@ -42,6 +42,7 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
             if ($setType === null) {
                 continue;
             }
+
             if (! isset($setsConfig[$setType])) {
                 continue;
             }
@@ -66,11 +67,11 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
      * Compound sub-fields (returning multiple chunks) are kept as separate chunks.
      *
      * @param  array<string, mixed>  $set
-     * @param Collection<string, Field> $resolvedFields
+     * @param  Collection<string, Field>  $resolvedFields
      * @return ContentChunk[]
      */
     private function extractSet(
-        Entry $entry,
+        StatamicEntry $entry,
         string $fieldHandle,
         array $set,
         Collection $resolvedFields,
@@ -87,9 +88,11 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
             if ($setFieldValue === null) {
                 continue;
             }
+
             if ($setFieldValue === '') {
                 continue;
             }
+
             if ($setFieldValue === []) {
                 continue;
             }
@@ -98,7 +101,7 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
 
             $extractor = $this->resolver->resolve($setFieldType, $setFieldHandle);
 
-            if (!$extractor instanceof FieldExtractorInterface) {
+            if (! $extractor instanceof FieldExtractorInterface) {
                 if (is_string($setFieldValue)) {
                     $mergedParts[] = $setFieldValue;
                 }

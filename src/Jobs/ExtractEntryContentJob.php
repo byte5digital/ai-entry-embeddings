@@ -12,7 +12,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Statamic\Contracts\Entries\Entry as StatamicEntry;
+use Statamic\Entries\Entry as StatamicEntry;
 
 final class ExtractEntryContentJob implements ShouldBeUnique, ShouldQueue
 {

@@ -6,7 +6,7 @@ namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Illuminate\Pipeline\Pipeline;
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
 final readonly class ContentExtractionPipeline
@@ -16,10 +16,10 @@ final readonly class ContentExtractionPipeline
         private Pipeline $pipeline,
     ) {}
 
-    public function process(Entry $entry): ExtractionPayload
+    public function process(StatamicEntry $entry): ExtractionPayload
     {
         $collectionHandle = $entry->collectionHandle();
-        $config = config('ai-entry-embeddings.extraction_pipeline.collections.' . $collectionHandle, []);
+        $config = config('ai-entry-embeddings.extraction_pipeline.collections.'.$collectionHandle, []);
         $siteHandle = $entry->site()?->handle() ?? 'default';
 
         $payload = new ExtractionPayload(
@@ -36,9 +36,11 @@ final readonly class ContentExtractionPipeline
             if ($value === null) {
                 continue;
             }
+
             if ($value === '') {
                 continue;
             }
+
             if ($value === []) {
                 continue;
             }
@@ -49,7 +51,7 @@ final readonly class ContentExtractionPipeline
                 customPipes: $fieldMeta['custom_pipes'],
             );
 
-            if (!$extractor instanceof FieldExtractorInterface) {
+            if (! $extractor instanceof FieldExtractorInterface) {
                 continue;
             }
 
@@ -73,9 +75,9 @@ final readonly class ContentExtractionPipeline
      * Determine which fields to extract based on blueprint and collection config.
      *
      * @param  array<string, mixed>  $config
-     * @return array<string, array{type: string, field: Field, custom_pipes: array<int, class-string>}>
+     * @return array<string, array{type: string, field: Field, custom_pipes: array<int, class-string<FieldExtractorInterface>>}>
      */
-    private function resolveFieldsToExtract(Entry $entry, array $config): array
+    private function resolveFieldsToExtract(StatamicEntry $entry, array $config): array
     {
         $blueprint = $entry->blueprint();
         $allFields = $blueprint->fields()->all();

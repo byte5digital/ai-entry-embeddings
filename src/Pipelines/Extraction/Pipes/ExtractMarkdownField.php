@@ -7,7 +7,7 @@ namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Concerns\ConvertsHtmlToPlainText;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Facades\Markdown;
 use Statamic\Fields\Field;
 
@@ -15,7 +15,7 @@ final class ExtractMarkdownField implements FieldExtractorInterface
 {
     use ConvertsHtmlToPlainText;
 
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
         if (! is_string($value) || trim($value) === '') {
             return [];

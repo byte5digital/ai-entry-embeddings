@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 
-use Illuminate\Support\Collection;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
-use Statamic\Contracts\Entries\Entry;
+use Illuminate\Support\Collection;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
 
@@ -18,7 +18,7 @@ final readonly class ExtractGridField implements FieldExtractorInterface
         private FieldExtractorResolver $resolver,
     ) {}
 
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
         if (! is_array($value)) {
             return [];
@@ -51,11 +51,11 @@ final readonly class ExtractGridField implements FieldExtractorInterface
      * Compound sub-fields produce their own chunks.
      *
      * @param  array<string, mixed>  $row
-     * @param Collection<string, Field> $resolvedColumns
+     * @param  Collection<string, Field>  $resolvedColumns
      * @return ContentChunk[]
      */
     private function extractRow(
-        Entry $entry,
+        StatamicEntry $entry,
         string $fieldHandle,
         array $row,
         Collection $resolvedColumns,
@@ -71,9 +71,11 @@ final readonly class ExtractGridField implements FieldExtractorInterface
             if ($cellValue === null) {
                 continue;
             }
+
             if ($cellValue === '') {
                 continue;
             }
+
             if ($cellValue === []) {
                 continue;
             }
@@ -82,7 +84,7 @@ final readonly class ExtractGridField implements FieldExtractorInterface
 
             $extractor = $this->resolver->resolve($columnType, $columnHandle);
 
-            if (!$extractor instanceof FieldExtractorInterface) {
+            if (! $extractor instanceof FieldExtractorInterface) {
                 if (is_string($cellValue)) {
                     $mergedParts[] = $cellValue;
                 }

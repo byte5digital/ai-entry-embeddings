@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 
 final class ExtractionPayload
 {
@@ -15,7 +15,7 @@ final class ExtractionPayload
      * @param  array<string, mixed>  $collectionConfig
      */
     public function __construct(
-        public readonly Entry $entry,
+        public readonly StatamicEntry $entry,
         public readonly string $collectionHandle,
         public readonly string $siteHandle,
         public readonly array $collectionConfig,

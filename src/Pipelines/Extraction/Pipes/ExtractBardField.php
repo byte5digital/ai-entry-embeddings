@@ -8,7 +8,7 @@ use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Concerns\ConvertsHtmlToPlainTex
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
 
@@ -20,7 +20,7 @@ final readonly class ExtractBardField implements FieldExtractorInterface
         private FieldExtractorResolver $resolver,
     ) {}
 
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
         $basePath = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
 
@@ -107,6 +107,8 @@ final readonly class ExtractBardField implements FieldExtractorInterface
 
     /**
      * Recursively extract text from a ProseMirror node tree.
+     *
+     * @param  array<string, mixed>  $node
      */
     private function extractTextFromNode(array $node): string
     {
@@ -134,9 +136,10 @@ final readonly class ExtractBardField implements FieldExtractorInterface
      * Simple sub-fields are merged into one chunk for the set.
      * Compound sub-fields produce their own chunks.
      *
+     * @param  array<string, mixed>  $node
      * @return ContentChunk[]
      */
-    private function extractFromSet(Entry $entry, array $node, Field $parentField, string $basePath): array
+    private function extractFromSet(StatamicEntry $entry, array $node, Field $parentField, string $basePath): array
     {
         $setValues = $node['attrs']['values'] ?? [];
         $setType = $setValues['type'] ?? null;
@@ -170,9 +173,11 @@ final readonly class ExtractBardField implements FieldExtractorInterface
             if ($setFieldValue === null) {
                 continue;
             }
+
             if ($setFieldValue === '') {
                 continue;
             }
+
             if ($setFieldValue === []) {
                 continue;
             }
@@ -181,7 +186,7 @@ final readonly class ExtractBardField implements FieldExtractorInterface
 
             $extractor = $this->resolver->resolve($setFieldType, $setFieldHandle);
 
-            if (!$extractor instanceof FieldExtractorInterface) {
+            if (! $extractor instanceof FieldExtractorInterface) {
                 if (is_string($setFieldValue)) {
                     $mergedParts[] = $setFieldValue;
                 }

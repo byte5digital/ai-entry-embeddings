@@ -6,12 +6,12 @@ namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
 final class ExtractTextField implements FieldExtractorInterface
 {
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array
     {
         if (! is_string($value) && ! is_numeric($value)) {
             return [];

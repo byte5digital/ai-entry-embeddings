@@ -26,7 +26,8 @@
     "require-dev": {
         "orchestra/testbench": "^10.8",
         "rector/rector": "^2.3",
-        "larastan/larastan": "^3.9"
+        "larastan/larastan": "^3.9",
+        "laravel/pint": "^1.29"
     },
     "config": {
         "allow-plugins": {

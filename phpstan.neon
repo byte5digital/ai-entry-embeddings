@@ -8,6 +8,11 @@ parameters:
         - src/
         - database/
     ignoreErrors:
-        # Ignore errors about missing return types in the tests directory
+        -
+            message: '#Property .+ServiceProvider::\$vite .+ does not accept default value#'
+            path: src/ServiceProvider.php
+        -
+            message: '#Call to an undefined method Statamic\\CP\\Navigation\\Nav::content\(\)#'
+            path: src/ServiceProvider.php
     excludePaths:
         # Ignore errors in the vendor directory

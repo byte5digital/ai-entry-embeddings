@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts;
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
-use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
 interface FieldExtractorInterface
@@ -16,5 +16,5 @@ interface FieldExtractorInterface
      * @param  string  $parentPath  Dot-notation path of the parent context (empty for top-level fields).
      * @return ContentChunk[]
      */
-    public function extract(Entry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array;
+    public function extract(StatamicEntry $entry, string $fieldHandle, mixed $value, Field $field, string $parentPath = ''): array;
 }
