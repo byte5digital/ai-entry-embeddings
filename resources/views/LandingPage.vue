@@ -1,15 +1,12 @@
 <script setup>
 import { Head, Link } from '@statamic/cms/inertia';
-import { Badge, CardPanel, EmptyStateItem, Header, Listing } from '@statamic/cms/ui';
+import { Badge, Header, Listing, CardPanel} from '@statamic/cms/ui';
 
 const props = defineProps({
-    collections: {
-        type: Array,
-        default: () => [],
-    },
-    columns: {
-        type: Array,
-        default: () => [],
+    listingUrl: { type: String, required: true },
+    definedEmbeddingCollections: {
+      type: Array,
+      default: () => [],
     },
 });
 </script>
@@ -21,9 +18,8 @@ const props = defineProps({
     </div>
 
     <Listing
-        v-if="collections.length"
-        :items="collections"
-        :columns="columns"
+        v-if="definedEmbeddingCollections.length > 0"
+        :url="listingUrl"
         :allowSearch="false"
         :allowCustomizingColumns="false"
     >
@@ -56,8 +52,7 @@ const props = defineProps({
             </div>
         </template>
     </Listing>
-
-    <CardPanel v-else :heading="__('ai-entry-embeddings::frontend.collections.no_config.title')">
-        {{ __('ai-entry-embeddings::frontend.collections.no_config.description') }}
-    </CardPanel>
+  <CardPanel v-else :heading="__('ai-entry-embeddings::frontend.collections.no_config.title')">
+    {{ __('ai-entry-embeddings::frontend.collections.no_config.description') }}
+  </CardPanel>
 </template>

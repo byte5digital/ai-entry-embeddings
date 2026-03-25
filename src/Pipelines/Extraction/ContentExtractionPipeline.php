@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
+use Byte5\AiEntryEmbeddings\DTOs\CollectionConfig;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
+use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
@@ -12,22 +14,23 @@ final readonly class ContentExtractionPipeline
 {
     public function __construct(
         private FieldExtractorResolver $resolver,
+        private EmbeddingCollectionRepositoryInterface $repository,
     ) {}
 
     public function process(StatamicEntry $entry): ExtractionPayload
     {
         $collectionHandle = $entry->collectionHandle();
-        $config = config('ai-entry-embeddings.extraction_pipeline.collections.'.$collectionHandle, []);
+        $collectionConfig = $this->repository->getConfig($collectionHandle);
         $siteHandle = $entry->site()?->handle() ?? 'default';
 
         $payload = new ExtractionPayload(
             entry: $entry,
             collectionHandle: $collectionHandle,
             siteHandle: $siteHandle,
-            collectionConfig: $config,
+            collectionConfig: $collectionConfig,
         );
 
-        $fields = $this->resolveFieldsToExtract($entry, $config);
+        $fields = $this->resolveFieldsToExtract($entry, $collectionConfig);
 
         foreach ($fields as $fieldHandle => $fieldMeta) {
             $value = $entry->get($fieldHandle);
@@ -63,29 +66,16 @@ final readonly class ContentExtractionPipeline
     /**
      * Determine which fields to extract based on blueprint and collection config.
      *
-     * @param  array<string, mixed>  $config
      * @return array<string, array{type: string, field: Field, custom_pipes: array<int, class-string<FieldExtractorInterface>>}>
      */
-    private function resolveFieldsToExtract(StatamicEntry $entry, array $config): array
+    private function resolveFieldsToExtract(StatamicEntry $entry, CollectionConfig $config): array
     {
         $blueprint = $entry->blueprint();
         $allFields = $blueprint->fields()->all();
         $ignoredTypes = config('ai-entry-embeddings.extraction_pipeline.ignored_field_types', []);
 
-        if (! isset($config['fields']) || $config['fields'] === []) {
+        if ($config->fields === []) {
             return [];
-        }
-
-        $includeOnly = [];
-        $customPipesMap = [];
-
-        foreach ($config['fields'] as $key => $value) {
-            if (is_int($key)) {
-                $includeOnly[] = $value;
-            } else {
-                $includeOnly[] = $key;
-                $customPipesMap[$key] = $value;
-            }
         }
 
         $result = [];
@@ -98,14 +88,14 @@ final readonly class ContentExtractionPipeline
                 continue;
             }
 
-            if (! in_array($handle, $includeOnly, true)) {
+            if (! in_array($handle, $config->fields, true)) {
                 continue;
             }
 
             $result[$handle] = [
                 'type' => $type,
                 'field' => $field,
-                'custom_pipes' => $customPipesMap[$handle] ?? [],
+                'custom_pipes' => $config->customExtractors[$handle] ?? [],
             ];
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction;
 
+use Byte5\AiEntryEmbeddings\DTOs\CollectionConfig;
 use Statamic\Entries\Entry as StatamicEntry;
 
 final class ExtractionPayload
@@ -11,14 +12,11 @@ final class ExtractionPayload
     /** @var ContentChunk[] */
     private array $chunks = [];
 
-    /**
-     * @param  array<string, mixed>  $collectionConfig
-     */
     public function __construct(
         public readonly StatamicEntry $entry,
         public readonly string $collectionHandle,
         public readonly string $siteHandle,
-        public readonly array $collectionConfig,
+        public readonly CollectionConfig $collectionConfig,
     ) {}
 
     public function addChunk(ContentChunk $chunk): void

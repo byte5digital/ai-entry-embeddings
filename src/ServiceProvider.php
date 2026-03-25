@@ -9,6 +9,8 @@ use Byte5\AiEntryEmbeddings\Listeners\StoreExtractedChunksListener;
 use Byte5\AiEntryEmbeddings\Query\Scopes\Filters\EmbeddingSiteFilter;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
+use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
+use Byte5\AiEntryEmbeddings\Repositories\EmbeddingCollectionRepository;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 use Byte5\AiEntryEmbeddings\Services\EntryEmbeddingService;
 use Statamic\CP\Navigation\Nav;
@@ -56,19 +58,18 @@ final class ServiceProvider extends AddonServiceProvider
         $this->app->singleton(FieldExtractorResolver::class);
         $this->app->singleton(ContentExtractionPipeline::class);
         $this->app->bind(EntryEmbeddingServiceInterface::class, EntryEmbeddingService::class);
+        $this->app->singleton(EmbeddingCollectionRepositoryInterface::class, EmbeddingCollectionRepository::class);
     }
 
     private function bootNav(): void
     {
         NavAPI::extend(function (Nav $nav) {
-            $collections = array_keys(
-                config('ai-entry-embeddings.extraction_pipeline.collections', [])
-            );
+            $repository = $this->app->make(EmbeddingCollectionRepositoryInterface::class);
 
             $children = array_map(
                 fn (string $handle) => $nav->item(ucfirst($handle))
                     ->route('ai-entry-embeddings.generatedEmbeddings', ['embeddingCollection' => $handle]),
-                $collections
+                $repository->handles()
             );
 
             $nav->content(__('ai-entry-embeddings::frontend.navigation.main.title'))

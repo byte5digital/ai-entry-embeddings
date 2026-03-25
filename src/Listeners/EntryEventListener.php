@@ -5,26 +5,25 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Listeners;
 
 use Byte5\AiEntryEmbeddings\Jobs\ExtractEntryContentJob;
+use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Statamic\Events\EntrySaved;
 
-final class EntryEventListener
+final readonly class EntryEventListener
 {
+    public function __construct(
+        private EmbeddingCollectionRepositoryInterface $repository,
+    ) {}
+
     public function handleEntrySaved(EntrySaved $event): void
     {
         $entry = $event->entry;
         $collectionHandle = $entry->collectionHandle();
 
-        $configuredCollections = array_keys(
-            config('ai-entry-embeddings.extraction_pipeline.collections', [])
-        );
-
-        if (! in_array($collectionHandle, $configuredCollections, true)) {
+        if (! $this->repository->exists($collectionHandle)) {
             return;
         }
 
-        $onlyPublished = config('ai-entry-embeddings.extraction_pipeline.only_published', true);
-
-        if ($onlyPublished && ! $entry->published()) {
+        if ($this->repository->onlyPublished() && ! $entry->published()) {
             return;
         }
 

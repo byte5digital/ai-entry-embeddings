@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Http\Controllers;
 
+use Byte5\AiEntryEmbeddings\Http\Resources\EmbeddingCollectionsCollection;
 use Byte5\AiEntryEmbeddings\Http\Resources\EntryEmbeddingWithStatusesCollection;
+use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use Statamic\CP\Column;
 use Statamic\Facades\Scope;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Http\Requests\FilteredRequest;
@@ -18,12 +18,18 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 final class AiEntryEmbeddingsController extends CpController
 {
 
-    public function landingPage(EntryEmbeddingServiceInterface $service): Response
+    public function landingPage(  EmbeddingCollectionRepositoryInterface $repository,): Response
     {
-        $collectionHandles = array_keys(
-            config('ai-entry-embeddings.extraction_pipeline.collections', [])
-        );
+        return Inertia::render('ai-entry-embeddings::LandingPage', [
+            'definedEmbeddingCollections' => $repository->handles(),
+            'listingUrl' => cp_route('ai-entry-embeddings.collections.list'),
+        ]);
+    }
 
+    public function listCollections(
+        EntryEmbeddingServiceInterface $service,
+        EmbeddingCollectionRepositoryInterface $repository,
+    ): EmbeddingCollectionsCollection {
         $stats = $service->getCollectionStats();
 
         $collections = array_map(function (string $handle) use ($stats) {
@@ -38,23 +44,16 @@ final class AiEntryEmbeddingsController extends CpController
                 'embedded_chunks' => $stat?->embedded_chunks ?? 0,
                 'pending_chunks' => $stat?->pending_chunks ?? 0,
             ];
-        }, $collectionHandles);
+        }, $repository->handles());
 
-        $columns = [
-            Column::make('title')->label(__('Collection')),
-            Column::make('entries_count')->label(__('Entries')),
-            Column::make('embeddings')->label(__('Embeddings')),
-        ];
-
-        return Inertia::render('ai-entry-embeddings::LandingPage', [
-            'collections' => array_values($collections),
-            'columns' => $columns,
-        ]);
+        return new EmbeddingCollectionsCollection(array_values($collections));
     }
 
-    public function generatedEmbeddings(string $embeddingCollection): Response|SymfonyResponse
-    {
-        if (! array_key_exists($embeddingCollection, config('ai-entry-embeddings.extraction_pipeline.collections', []))) {
+    public function generatedEmbeddings(
+        string $embeddingCollection,
+        EmbeddingCollectionRepositoryInterface $repository,
+    ): Response|SymfonyResponse {
+        if (! $repository->exists($embeddingCollection)) {
             return Inertia::render('ai-entry-embeddings::NotFound')
                 ->toResponse(request())
                 ->setStatusCode(404);
