@@ -25,10 +25,17 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         string $siteHandle,
         EmbeddingStatus $status,
     ): EntryEmbedding {
-        return EntryEmbedding::query()->updateOrCreate(
+        $entryEmbedding = EntryEmbedding::query()->updateOrCreate(
             ['entry_id' => $entryId, 'collection_handle' => $collectionHandle],
             ['site_handle' => $siteHandle, 'status' => $status],
         );
+
+        if ($status === EmbeddingStatus::Extracting) {
+            $entryEmbedding->chunks()->delete();
+            $entryEmbedding->update(['total_chunks' => 0, 'embedded_chunks' => 0]);
+        }
+
+        return $entryEmbedding;
     }
 
     /**

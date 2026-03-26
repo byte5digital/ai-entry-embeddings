@@ -42,6 +42,19 @@ return [
     ],
     'fieldtype' => [
         'title' => 'Embedding Status',
+        'no_embeddings' => 'No embeddings generated yet. Embeddings will be created after the entry is saved.',
+        'status' => [
+            'pending' => 'Pending',
+            'extracting' => 'Extracting...',
+            'generating' => 'Generating embeddings...',
+            'generated' => 'Generated',
+            'failed' => 'Failed',
+        ],
+        'total_chunks' => 'Total Chunks',
+        'embedded' => 'Embedded',
+        'pending' => 'Pending',
+        'last_updated' => 'Last updated',
+        'view_details' => 'View chunk details',
     ],
     'chunk' => [
         'columns' => [
