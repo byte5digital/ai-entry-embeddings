@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractBardField;
+use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractFieldWithAi;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractGridField;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractMarkdownField;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractReplicatorField;
@@ -19,6 +20,13 @@ return [
         | Maps Statamic field types to their extractor class. Each extractor
         | implements FieldExtractorInterface and converts the field's value
         | to plain text. You can override or extend this map.
+        |
+        | To use the AI-powered extractor for a field type, replace the
+        | default extractor with \Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractFieldWithAi::class.
+        | This will use an AI agent to extract text from the field, which can be more effective for complex or nested content.
+        |
+        |   'bard' => ExtractFieldWithAi::class,
+        |   'replicator' => ExtractFieldWithAi::class,
         |
         */
         'default_field_extractors' => [
@@ -81,6 +89,15 @@ return [
         |       'fields' => [
         |           'title',
         |           'custom_field' => [\App\Pipes\MyCustomExtractor::class],
+        |       ],
+        |   ],
+        |
+        | AI-powered extractor per field (uses an AI agent instead of
+        | rule-based parsing):
+        |   'pages' => [
+        |       'fields' => [
+        |           'title',
+        |           'page_builder' => [ExtractFieldWithAi::class],
         |       ],
         |   ],
         |
