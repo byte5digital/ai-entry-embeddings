@@ -6,6 +6,7 @@ namespace Byte5\AiEntryEmbeddings\Services;
 
 use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
+use Byte5\AiEntryEmbeddings\Models\EntryEmbeddingChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -18,26 +19,30 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
 {
     use QueriesFilters;
 
-    /**
-     * @param  ContentChunk[]  $chunks
-     */
-    public function replaceForEntry(
+    public function upsertEntry(
         string $entryId,
         string $collectionHandle,
         string $siteHandle,
-        array $chunks,
-    ): void {
-        DB::transaction(function () use ($entryId, $collectionHandle, $siteHandle, $chunks): void {
-            EntryEmbedding::query()->where('entry_id', $entryId)
-                ->where('collection_handle', $collectionHandle)
-                ->delete();
+        EmbeddingStatus $status,
+    ): EntryEmbedding {
+        return EntryEmbedding::query()->updateOrCreate(
+            ['entry_id' => $entryId, 'collection_handle' => $collectionHandle],
+            ['site_handle' => $siteHandle, 'status' => $status],
+        );
+    }
+
+    /**
+     * @param  ContentChunk[]  $chunks
+     */
+    public function replaceChunks(EntryEmbedding $entryEmbedding, array $chunks): void
+    {
+        DB::transaction(function () use ($entryEmbedding, $chunks): void {
+            $entryEmbedding->chunks()->delete();
 
             $now = now();
 
             $rows = array_map(fn (ContentChunk $chunk): array => [
-                'entry_id' => $entryId,
-                'collection_handle' => $collectionHandle,
-                'site_handle' => $siteHandle,
+                'entry_embedding_id' => $entryEmbedding->id,
                 'field_handle' => $chunk->fieldHandle,
                 'path' => $chunk->path,
                 'content' => $chunk->text,
@@ -46,8 +51,23 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
                 'updated_at' => $now,
             ], $chunks);
 
-            EntryEmbedding::query()->insert($rows);
+            EntryEmbeddingChunk::query()->insert($rows);
+
+            $entryEmbedding->update([
+                'total_chunks' => count($chunks),
+                'embedded_chunks' => 0,
+            ]);
         });
+    }
+
+    public function markChunksEmbedded(EntryEmbedding $entryEmbedding, int $count): void
+    {
+        $entryEmbedding->update([
+            'embedded_chunks' => $count,
+            'status' => $count >= $entryEmbedding->total_chunks
+                ? EmbeddingStatus::Generated
+                : EmbeddingStatus::Generating,
+        ]);
     }
 
     /**
@@ -57,9 +77,9 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
     {
         return EntryEmbedding::query()
             ->select('collection_handle')
-            ->selectRaw('COUNT(DISTINCT entry_id) as entries_count')
-            ->selectRaw('COUNT(*) as total_chunks')
-            ->selectRaw('COUNT(embedding) as embedded_chunks')
+            ->selectRaw('COUNT(*) as entries_count')
+            ->selectRaw('SUM(total_chunks) as total_chunks')
+            ->selectRaw('SUM(embedded_chunks) as embedded_chunks')
             ->groupBy('collection_handle')
             ->get()
             ->keyBy('collection_handle');
@@ -77,17 +97,12 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
     public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array
     {
         $query = EntryEmbedding::query()
-            ->select(['entry_id', 'collection_handle', 'site_handle'])
-            ->selectRaw('COUNT(*) as total_chunks')
-            ->selectRaw('COUNT(embedding) as embedded_chunks')
-            ->selectRaw('MAX(updated_at) as updated_at')
-            ->groupBy('entry_id', 'collection_handle', 'site_handle')
             ->where('collection_handle', $collection);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('entry_id', 'like', "%{$search}%")
-                    ->orWhere('content', 'like', "%{$search}%");
+                    ->orWhereHas('chunks', fn ($cq) => $cq->where('content', 'like', "%{$search}%"));
             });
         }
 
@@ -103,14 +118,19 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         ];
     }
 
-    /**
-     * @return array{paginator: LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
-     */
+    /** {@inheritDoc} */
     public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array
     {
-        $query = EntryEmbedding::query()
-            ->where('collection_handle', $collection)
-            ->where('entry_id', $entryId);
+        $entryEmbedding = $this->findForEntry($entryId, $collection);
+
+        if ($entryEmbedding === null) {
+            return [
+                'paginator' => EntryEmbeddingChunk::query()->whereRaw('1 = 0')->paginate(),
+                'activeFilterBadges' => [],
+            ];
+        }
+
+        $query = $entryEmbedding->chunks();
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -130,30 +150,11 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         ];
     }
 
-    /** {@inheritDoc} */
-    public function getEntryStats(string $entryId, string $collectionHandle): ?array
+    public function findForEntry(string $entryId, string $collectionHandle): ?EntryEmbedding
     {
-        $row = EntryEmbedding::query()
-            ->selectRaw('COUNT(*) as total_chunks')
-            ->selectRaw('COUNT(embedding) as embedded_chunks')
-            ->selectRaw('MAX(updated_at) as updated_at')
+        return EntryEmbedding::query()
             ->where('entry_id', $entryId)
             ->where('collection_handle', $collectionHandle)
             ->first();
-
-        if ($row === null || $row->total_chunks === 0) {
-            return null;
-        }
-
-        $totalChunks = (int) $row->total_chunks;
-        $embeddedChunks = (int) $row->embedded_chunks;
-
-        return [
-            'total_chunks' => $totalChunks,
-            'embedded_chunks' => $embeddedChunks,
-            'pending_chunks' => $totalChunks - $embeddedChunks,
-            'status' => EmbeddingStatus::fromChunks($embeddedChunks, $totalChunks)->value,
-            'updated_at' => $row->updated_at?->toIso8601String(),
-        ];
     }
 }

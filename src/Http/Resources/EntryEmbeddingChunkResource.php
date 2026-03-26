@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Http\Resources;
 
-use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
+use Byte5\AiEntryEmbeddings\Models\EntryEmbeddingChunk;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Statamic\CP\Column;
 
 /**
- * @mixin EntryEmbedding
+ * @mixin EntryEmbeddingChunk
  */
 final class EntryEmbeddingChunkResource extends JsonResource
 {

@@ -42,14 +42,17 @@ final class AiEntryEmbeddingsController extends CpController
         $collections = array_map(function (string $handle) use ($stats): array {
             $stat = $stats->get($handle);
 
+            $totalChunks = (int) ($stat->total_chunks ?? 0);
+            $embeddedChunks = (int) ($stat->embedded_chunks ?? 0);
+
             return [
                 'handle' => $handle,
                 'title' => ucfirst($handle),
                 'url' => cp_route('ai-entry-embeddings.generatedEmbeddings', ['embeddingCollection' => $handle]),
-                'entries_count' => $stat->entries_count ?? 0,
-                'total_chunks' => $stat->total_chunks ?? 0,
-                'embedded_chunks' => $stat->embedded_chunks ?? 0,
-                'pending_chunks' => $stat->pending_chunks ?? 0,
+                'entries_count' => (int) ($stat->entries_count ?? 0),
+                'total_chunks' => $totalChunks,
+                'embedded_chunks' => $embeddedChunks,
+                'pending_chunks' => $totalChunks - $embeddedChunks,
             ];
         }, $this->repository->handles());
 

@@ -31,19 +31,26 @@ final class EmbeddingStatusFieldtype extends Fieldtype
         $parent = $this->field()->parent();
 
         if (! $parent instanceof Entry || $parent->id() === null) {
-            return ['has_embeddings' => false];
+            return ['has_embeddings' => false, 'is_processing' => false];
         }
 
         $service = app(EntryEmbeddingServiceInterface::class);
-        $stats = $service->getEntryStats($parent->id(), $parent->collectionHandle());
+        $entryEmbedding = $service->findForEntry($parent->id(), $parent->collectionHandle());
 
-        if ($stats === null) {
-            return ['has_embeddings' => false];
+        if ($entryEmbedding === null) {
+            return ['has_embeddings' => false, 'is_processing' => false];
         }
+
+        $isProcessing = in_array($entryEmbedding->status->value, ['extracting', 'generating'], true);
 
         return [
             'has_embeddings' => true,
-            ...$stats,
+            'is_processing' => $isProcessing,
+            'total_chunks' => $entryEmbedding->total_chunks,
+            'embedded_chunks' => $entryEmbedding->embedded_chunks,
+            'pending_chunks' => $entryEmbedding->total_chunks - $entryEmbedding->embedded_chunks,
+            'status' => $entryEmbedding->status->value,
+            'updated_at' => $entryEmbedding->updated_at?->toIso8601String(),
             'detail_url' => cp_route('ai-entry-embeddings.entryEmbeddingChunks', [
                 'embeddingCollection' => $parent->collectionHandle(),
                 'embeddingEntryId' => $parent->id(),

@@ -14,9 +14,22 @@ return new class extends Migration
 
         Schema::create('ai_entry_embeddings', function (Blueprint $table): void {
             $table->id();
-            $table->string('entry_id')->index()->comment('Statamic entry identifier');
-            $table->string('collection_handle')->index()->comment('Statamic collection handle, e.g. "pages"');
+            $table->string('entry_id')->comment('Statamic entry identifier');
+            $table->string('collection_handle')->comment('Statamic collection handle, e.g. "pages"');
             $table->string('site_handle')->comment('Statamic site handle, e.g. "default"');
+            $table->string('status')->default('pending')->comment('Processing status: pending, extracting, generating, generated, failed');
+            $table->unsignedInteger('total_chunks')->default(0);
+            $table->unsignedInteger('embedded_chunks')->default(0);
+            $table->timestamps();
+
+            $table->unique(['entry_id', 'collection_handle']);
+            $table->index('collection_handle');
+            $table->index('status');
+        });
+
+        Schema::create('ai_entry_embedding_chunks', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('entry_embedding_id')->constrained('ai_entry_embeddings')->cascadeOnDelete();
             $table->string('field_handle')->comment('Top-level field handle, e.g. "page_builder"');
             $table->string('path')->comment('Dot-notation chunk origin, e.g. "page_builder.pricing_block.0"');
             $table->text('content')->comment('Extracted plain text content for this chunk');
@@ -25,12 +38,13 @@ return new class extends Migration
             $table->json('metadata')->nullable()->comment('Structured metadata from extraction (set_type, set_index, etc.)');
             $table->timestamps();
 
-            $table->index(['entry_id', 'collection_handle']);
+            $table->index('entry_embedding_id');
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('ai_entry_embedding_chunks');
         Schema::dropIfExists('ai_entry_embeddings');
     }
 };

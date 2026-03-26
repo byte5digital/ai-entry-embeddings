@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Http\Resources;
 
-use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -28,7 +27,7 @@ final class EntryEmbeddingWithStatusResource extends JsonResource
             'entry_id' => $this->entry_id,
             'collection_handle' => $this->collection_handle,
             'site_handle' => $this->site_handle,
-            'embedding_status' => EmbeddingStatus::fromChunks($this->embedded_chunks, $this->total_chunks)->value,
+            'embedding_status' => $this->status->value,
             'updated_at' => $this->updated_at,
             'url' => cp_route('ai-entry-embeddings.entryEmbeddingChunks', [
                 'embeddingCollection' => $this->collection_handle,

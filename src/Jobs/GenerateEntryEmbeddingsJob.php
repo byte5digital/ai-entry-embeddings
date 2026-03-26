@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Jobs;
 
+use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
+use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,26 +37,46 @@ final class GenerateEntryEmbeddingsJob implements ShouldQueue
         }
     }
 
-    public function handle(): void
+    public function handle(EntryEmbeddingServiceInterface $service): void
     {
-        $rows = EntryEmbedding::query()->where('entry_id', $this->entry->id())
-            ->where('collection_handle', $this->entry->collectionHandle())
-            ->whereNull('embedding')
-            ->get();
+        $entryEmbedding = $service->findForEntry(
+            $this->entry->id(),
+            $this->entry->collectionHandle(),
+        );
 
-        if ($rows->isEmpty()) {
+        if (! $entryEmbedding instanceof EntryEmbedding) {
             return;
         }
 
-        $texts = $rows->pluck('content')->all();
+        $chunks = $entryEmbedding->chunks()->whereNull('embedding')->get();
+
+        if ($chunks->isEmpty()) {
+            $service->markChunksEmbedded($entryEmbedding, $entryEmbedding->total_chunks);
+
+            return;
+        }
+
+        $texts = $chunks->pluck('content')->all();
         $dimensions = config('ai-entry-embeddings.embeddings.dimensions', 1536);
 
         $response = Embeddings::for($texts)
             ->dimensions($dimensions)
             ->generate();
 
-        foreach ($rows as $index => $row) {
-            $row->update(['embedding' => $response->embeddings[$index]]);
+        foreach ($chunks as $index => $chunk) {
+            $chunk->update(['embedding' => $response->embeddings[$index]]);
         }
+
+        $service->markChunksEmbedded($entryEmbedding, $entryEmbedding->total_chunks);
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        $entryEmbedding = EntryEmbedding::query()
+            ->where('entry_id', $this->entry->id())
+            ->where('collection_handle', $this->entry->collectionHandle())
+            ->first();
+
+        $entryEmbedding?->update(['status' => EmbeddingStatus::Failed]);
     }
 }

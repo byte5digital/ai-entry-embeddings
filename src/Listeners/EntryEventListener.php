@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Listeners;
 
+use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Jobs\ExtractEntryContentJob;
 use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
@@ -30,6 +31,13 @@ final readonly class EntryEventListener
         if ($this->repository->onlyPublished() && ! $entry->published()) {
             return;
         }
+
+        $this->service->upsertEntry(
+            $entry->id(),
+            $collectionHandle,
+            $entry->site()?->handle() ?? 'default',
+            EmbeddingStatus::Extracting,
+        );
 
         dispatch(new ExtractEntryContentJob($entry));
     }
