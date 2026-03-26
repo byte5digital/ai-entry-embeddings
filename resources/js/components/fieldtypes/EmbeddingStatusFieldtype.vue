@@ -20,7 +20,12 @@
                 </CardPanel>
             </div>
 
-            <Button v-if="meta.detail_url && meta.total_chunks > 0" :href="meta.detail_url" icon-append="arrow-right">
+            <Button
+                v-if="meta.detail_url && meta.total_chunks > 0"
+                :href="meta.can_view_details ? meta.detail_url : undefined"
+                :disabled="!meta.can_view_details"
+                icon-append="arrow-right"
+            >
                 {{ __('ai-entry-embeddings::frontend.fieldtype.view_details') }}
             </Button>
         </div>

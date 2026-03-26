@@ -6,6 +6,7 @@ namespace Byte5\AiEntryEmbeddings\Services\Contracts;
 
 use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
+use Byte5\AiEntryEmbeddings\Models\EntryEmbeddingChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -51,7 +52,7 @@ interface EntryEmbeddingServiceInterface
     public function deleteForEntry(string $entryId): void;
 
     /**
-     * @return array{paginator: LengthAwarePaginator<int, \Byte5\AiEntryEmbeddings\Models\EntryEmbeddingChunk>, activeFilterBadges: array<int, mixed>}
+     * @return array{paginator: LengthAwarePaginator<int, EntryEmbeddingChunk>, activeFilterBadges: array<int, mixed>}
      */
     public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array;
 

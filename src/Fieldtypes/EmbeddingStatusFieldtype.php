@@ -6,6 +6,7 @@ namespace Byte5\AiEntryEmbeddings\Fieldtypes;
 
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
 use Statamic\Entries\Entry;
+use Statamic\Facades\User;
 use Statamic\Fields\Fieldtype;
 
 final class EmbeddingStatusFieldtype extends Fieldtype
@@ -59,6 +60,7 @@ final class EmbeddingStatusFieldtype extends Fieldtype
                 'embeddingCollection' => $parent->collectionHandle(),
                 'embeddingEntryId' => $parent->id(),
             ]),
+            'can_view_details' => User::current()?->hasPermission('view AI entry embeddings'),
         ];
     }
 
