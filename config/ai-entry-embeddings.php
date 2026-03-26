@@ -120,4 +120,18 @@ return [
     'embeddings' => [
         'dimensions' => 1536,
     ],
+
+    /*
+   |--------------------------------------------------------------------------
+   | Queue
+   |--------------------------------------------------------------------------
+   |
+   | The queue connection and queue name used for dispatching extraction
+   | and embedding jobs. Set to null to use the application defaults.
+   |
+   */
+    'queue' => [
+        'connection' => null,
+        'name' => null,
+    ],
 ];

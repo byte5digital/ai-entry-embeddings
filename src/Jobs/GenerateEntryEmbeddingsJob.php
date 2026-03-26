@@ -25,7 +25,15 @@ final class GenerateEntryEmbeddingsJob implements ShouldQueue
 
     public function __construct(
         public StatamicEntry $entry,
-    ) {}
+    ) {
+        if ($connection = config('ai-entry-embeddings.queue.connection')) {
+            $this->onConnection($connection);
+        }
+
+        if ($queue = config('ai-entry-embeddings.queue.name')) {
+            $this->onQueue($queue);
+        }
+    }
 
     public function handle(): void
     {
