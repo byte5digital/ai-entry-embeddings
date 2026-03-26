@@ -163,6 +163,7 @@ final readonly class ExtractBardField implements FieldExtractorInterface
         $setPath = sprintf('%s.%s', $basePath, $setType);
         $mergedParts = [];
         $subChunks = [];
+        $ignoredTypes = config('ai-entry-embeddings.extraction_pipeline.ignored_field_types', []);
 
         // Resolve field references (e.g., "common.text_rich") into proper Field objects
         $resolvedFields = (new Fields($setConfig['fields']))->all();
@@ -184,13 +185,13 @@ final readonly class ExtractBardField implements FieldExtractorInterface
 
             $setFieldType = $setField->type();
 
+            if (in_array($setFieldType, $ignoredTypes, true)) {
+                continue;
+            }
+
             $extractor = $this->resolver->resolve($setFieldType, $setFieldHandle);
 
             if (! $extractor instanceof FieldExtractorInterface) {
-                if (is_string($setFieldValue)) {
-                    $mergedParts[] = $setFieldValue;
-                }
-
                 continue;
             }
 

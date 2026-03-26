@@ -45,7 +45,7 @@ return [
             'toggle', 'color', 'assets', 'hidden', 'revealer',
             'spacer', 'section', 'icon', 'video', 'width',
             'slug', 'template', 'date', 'time', 'integer',
-            'floatval', 'range',
+            'floatval', 'range', 'button_group', 'select',
         ],
 
         /*

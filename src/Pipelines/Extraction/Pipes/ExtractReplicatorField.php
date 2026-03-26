@@ -81,6 +81,7 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
     ): array {
         $mergedParts = [];
         $subChunks = [];
+        $ignoredTypes = config('ai-entry-embeddings.extraction_pipeline.ignored_field_types', []);
 
         foreach ($resolvedFields as $setField) {
             $setFieldHandle = $setField->handle();
@@ -99,13 +100,13 @@ final readonly class ExtractReplicatorField implements FieldExtractorInterface
 
             $setFieldType = $setField->type();
 
+            if (in_array($setFieldType, $ignoredTypes, true)) {
+                continue;
+            }
+
             $extractor = $this->resolver->resolve($setFieldType, $setFieldHandle);
 
             if (! $extractor instanceof FieldExtractorInterface) {
-                if (is_string($setFieldValue)) {
-                    $mergedParts[] = $setFieldValue;
-                }
-
                 continue;
             }
 
