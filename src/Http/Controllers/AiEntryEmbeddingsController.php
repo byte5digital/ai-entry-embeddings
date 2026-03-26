@@ -10,6 +10,7 @@ use Byte5\AiEntryEmbeddings\Http\Resources\EntryEmbeddingChunksCollection;
 use Byte5\AiEntryEmbeddings\Http\Resources\EntryEmbeddingWithStatusesCollection;
 use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
+use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Statamic\Entries\Collection;
@@ -114,6 +115,33 @@ final class AiEntryEmbeddingsController extends CpController
             ->additional([
                 'activeFilterBadges' => $result['activeFilterBadges'],
             ]);
+    }
+
+    public function embeddingStatus(
+        EntryEmbeddingServiceInterface $service,
+        string $embeddingCollection,
+        string $embeddingEntryId,
+    ): JsonResponse {
+        $collection = $this->resolveCollection($embeddingCollection);
+        $entry = $this->resolveEntry($embeddingEntryId, $collection);
+
+        $entryEmbedding = $service->findForEntry($entry->id(), $collection->handle());
+
+        if ($entryEmbedding === null) {
+            return response()->json(['has_embeddings' => false, 'is_processing' => false]);
+        }
+
+        $isProcessing = in_array($entryEmbedding->status->value, ['extracting', 'generating'], true);
+
+        return response()->json([
+            'has_embeddings' => true,
+            'is_processing' => $isProcessing,
+            'total_chunks' => $entryEmbedding->total_chunks,
+            'embedded_chunks' => $entryEmbedding->embedded_chunks,
+            'pending_chunks' => $entryEmbedding->total_chunks - $entryEmbedding->embedded_chunks,
+            'status' => $entryEmbedding->status->value,
+            'updated_at' => $entryEmbedding->updated_at?->toIso8601String(),
+        ]);
     }
 
     private function resolveCollection(string $handle): Collection

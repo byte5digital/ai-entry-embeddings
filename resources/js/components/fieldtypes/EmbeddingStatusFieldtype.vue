@@ -19,9 +19,10 @@
                     <div class="text-2xl font-bold text-amber-600">{{ meta.pending_chunks }}</div>
                 </CardPanel>
             </div>
-          <Button v-if="meta.detail_url && meta.total_chunks > 0" :href="meta.detail_url" icon-append="arrow-right">
-            {{ __('ai-entry-embeddings::frontend.fieldtype.view_details') }}
-          </Button>
+
+            <Button v-if="meta.detail_url && meta.total_chunks > 0" :href="meta.detail_url" icon-append="arrow-right">
+                {{ __('ai-entry-embeddings::frontend.fieldtype.view_details') }}
+            </Button>
         </div>
 
         <p v-else class="text-sm text-gray-500">
@@ -31,15 +32,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch, onBeforeUnmount } from 'vue';
+import { Fieldtype } from '@statamic/cms';
 import { Badge, CardPanel, Button } from '@statamic/cms/ui';
 import { formatDate } from '../../formatDate.js';
 
-const props = defineProps({
-    meta: { type: Object, default: null },
-});
+const POLL_INTERVAL = 5000;
+
+const emit = defineEmits(Fieldtype.emits);
+const props = defineProps(Fieldtype.props);
+const { expose, updateMeta } = Fieldtype.use(emit, props);
+defineExpose(expose);
 
 const __ = window.__;
+let pollTimer = null;
 
 const statusLabel = computed(() => {
     const key = `ai-entry-embeddings::frontend.fieldtype.status.${props.meta?.status}`;
@@ -56,4 +62,57 @@ const statusColor = computed(() => {
     };
     return map[props.meta?.status] ?? 'default';
 });
+
+async function pollStatus() {
+    const url = props.meta?.status_url;
+    if (!url) return;
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        updateMeta({ ...props.meta, ...data });
+    } catch {
+        // silently ignore network errors during polling
+    }
+}
+
+function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(pollStatus, POLL_INTERVAL);
+}
+
+function stopPolling() {
+    if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    }
+}
+
+// Immediately fetch fresh status + start polling after entry is saved
+function onEntrySaved(resolve) {
+    pollStatus().then(() => {
+        startPolling();
+        resolve();
+    });
+}
+
+watch(
+    () => props.meta?.is_processing,
+    (isProcessing) => {
+        if (isProcessing) {
+            startPolling();
+        } else {
+            stopPolling();
+        }
+    },
+    { immediate: true },
+);
+
+Statamic.$hooks.on('entry.saved', onEntrySaved);
+
+onBeforeUnmount(stopPolling);
 </script>

@@ -147,7 +147,7 @@ return [
    |
    */
     'queue' => [
-        'connection' => null,
-        'name' => null,
+        'connection' => 'redis',
+        'name' => 'embeddings',
     ],
 ];

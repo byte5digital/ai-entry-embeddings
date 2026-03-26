@@ -55,6 +55,10 @@ final class EmbeddingStatusFieldtype extends Fieldtype
                 'embeddingCollection' => $parent->collectionHandle(),
                 'embeddingEntryId' => $parent->id(),
             ]),
+            'status_url' => cp_route('ai-entry-embeddings.embeddingStatus', [
+                'embeddingCollection' => $parent->collectionHandle(),
+                'embeddingEntryId' => $parent->id(),
+            ]),
         ];
     }
 

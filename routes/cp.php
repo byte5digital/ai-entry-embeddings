@@ -11,4 +11,5 @@ Route::name('ai-entry-embeddings.')->prefix('ai-entry-embeddings')->group(functi
     Route::get('/{embeddingCollection}/list', [AiEntryEmbeddingsController::class, 'listEmbeddings'])->name('embeddings.list');
     Route::get('/{embeddingCollection}/{embeddingEntryId}', [AiEntryEmbeddingsController::class, 'entryEmbeddingChunks'])->name('entryEmbeddingChunks');
     Route::get('/{embeddingCollection}/{embeddingEntryId}/list', [AiEntryEmbeddingsController::class, 'listEntryEmbeddingChunks'])->name('entryEmbeddingChunks.list');
+    Route::get('/{embeddingCollection}/{embeddingEntryId}/status', [AiEntryEmbeddingsController::class, 'embeddingStatus'])->name('embeddingStatus');
 });
