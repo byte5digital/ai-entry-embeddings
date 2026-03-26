@@ -6,9 +6,9 @@ namespace Byte5\AiEntryEmbeddings;
 
 use Byte5\AiEntryEmbeddings\Events\Extraction\ContentExtracted;
 use Byte5\AiEntryEmbeddings\Listeners\StoreExtractedChunksListener;
-use Byte5\AiEntryEmbeddings\Query\Scopes\Filters\EmbeddingSiteFilter;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
+use Byte5\AiEntryEmbeddings\Query\Scopes\Filters\EmbeddingSiteFilter;
 use Byte5\AiEntryEmbeddings\Repositories\Contracts\EmbeddingCollectionRepositoryInterface;
 use Byte5\AiEntryEmbeddings\Repositories\EmbeddingCollectionRepository;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
@@ -63,7 +63,7 @@ final class ServiceProvider extends AddonServiceProvider
 
     private function bootNav(): void
     {
-        NavAPI::extend(function (Nav $nav) {
+        NavAPI::extend(function (Nav $nav): void {
             $repository = $this->app->make(EmbeddingCollectionRepositoryInterface::class);
 
             $children = array_map(

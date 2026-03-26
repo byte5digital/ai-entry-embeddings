@@ -15,11 +15,11 @@ return [
             'title' => 'Entry Embedding Chunks',
         ],
     ],
-    'collections'=>[
-        'no_config'=>[
-            'title'=>'No collections configured yet.',
-            'description'=>'Add collections to the extraction pipeline in your config file to start generating embeddings.',
-        ]
+    'collections' => [
+        'no_config' => [
+            'title' => 'No collections configured yet.',
+            'description' => 'Add collections to the extraction pipeline in your config file to start generating embeddings.',
+        ],
     ],
     'not_found' => [
         'collection' => [

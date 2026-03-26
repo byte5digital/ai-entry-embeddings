@@ -14,7 +14,7 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
         private ConfigRepository $config,
     ) {}
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function handles(): array
     {
         return array_values(array_filter(
@@ -23,7 +23,7 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
         ));
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function exists(string $handle): bool
     {
         return array_key_exists(
@@ -32,7 +32,7 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
         );
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getConfig(string $handle): CollectionConfig
     {
         $raw = $this->config->get(
@@ -43,7 +43,7 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
         return CollectionConfig::fromArray($handle, $raw);
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function onlyPublished(): bool
     {
         return (bool) $this->config->get(
@@ -52,7 +52,7 @@ final readonly class EmbeddingCollectionRepository implements EmbeddingCollectio
         );
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function keepDeletedEntryEmbeddings(): bool
     {
         return (bool) $this->config->get(

@@ -7,6 +7,7 @@ namespace Byte5\AiEntryEmbeddings\Services;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Statamic\Http\Requests\FilteredRequest;
@@ -15,6 +16,7 @@ use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
 {
     use QueriesFilters;
+
     /**
      * @param  ContentChunk[]  $chunks
      */
@@ -62,14 +64,14 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
             ->keyBy('collection_handle');
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function deleteForEntry(string $entryId): void
     {
         EntryEmbedding::query()->where('entry_id', $entryId)->delete();
     }
 
     /**
-     * @return array{paginator: \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
+     * @return array{paginator: LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
      */
     public function getFilteredEmbeddings(FilteredRequest $request, string $collection): array
     {
@@ -101,7 +103,7 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
     }
 
     /**
-     * @return array{paginator: \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
+     * @return array{paginator: LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
      */
     public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array
     {

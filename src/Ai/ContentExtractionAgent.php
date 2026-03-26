@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings\Ai;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\JsonSchema\Types\Type;
 use Laravel\Ai\Attributes\UseCheapestModel;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
@@ -32,7 +33,7 @@ class ContentExtractionAgent implements Agent, HasStructuredOutput
     }
 
     /**
-     * @return array<string, \Illuminate\JsonSchema\Types\Type>
+     * @return array<string, Type>
      */
     public function schema(JsonSchema $schema): array
     {

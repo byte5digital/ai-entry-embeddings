@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,9 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $content
  * @property array<int, float>|null $embedding
  * @property array<string, mixed>|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- *
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read int $entries_count
  * @property-read int $total_chunks
  * @property-read int $embedded_chunks
@@ -38,9 +39,9 @@ class EntryEmbedding extends Model
         ];
     }
 
-    public function getPendingChunksAttribute(): int
+    /** @return Attribute<int, never> */
+    protected function pendingChunks(): Attribute
     {
-        return ($this->total_chunks ?? 0) - ($this->embedded_chunks ?? 0);
+        return Attribute::get(fn (): int => ($this->total_chunks ?? 0) - ($this->embedded_chunks ?? 0));
     }
-
 }

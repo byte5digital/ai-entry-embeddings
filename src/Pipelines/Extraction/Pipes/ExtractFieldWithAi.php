@@ -7,6 +7,7 @@ namespace Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes;
 use Byte5\AiEntryEmbeddings\Ai\ContentExtractionAgent;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Contracts\FieldExtractorInterface;
+use Laravel\Ai\Responses\StructuredAgentResponse;
 use Statamic\Entries\Entry as StatamicEntry;
 use Statamic\Fields\Field;
 
@@ -31,6 +32,7 @@ final readonly class ExtractFieldWithAi implements FieldExtractorInterface
             $encoded,
         );
 
+        /** @var StructuredAgentResponse $response */
         $response = $this->agent->prompt($prompt);
 
         $basePath = $parentPath !== '' ? sprintf('%s.%s', $parentPath, $fieldHandle) : $fieldHandle;
@@ -39,7 +41,7 @@ final readonly class ExtractFieldWithAi implements FieldExtractorInterface
     }
 
     /**
-     * @param  array{chunks: array<int, array{text: string}>}  $structured
+     * @param  array<string, mixed>  $structured
      * @return ContentChunk[]
      */
     private function parseResponse(array $structured, string $fieldHandle, string $basePath): array
@@ -47,7 +49,7 @@ final readonly class ExtractFieldWithAi implements FieldExtractorInterface
         $chunks = [];
 
         foreach ($structured['chunks'] ?? [] as $index => $item) {
-            $text = trim($item['text'] ?? '');
+            $text = trim((string) ($item['text'] ?? ''));
 
             if ($text === '') {
                 continue;

@@ -39,7 +39,7 @@ final class AiEntryEmbeddingsController extends CpController
     ): EmbeddingCollectionsCollection {
         $stats = $service->getCollectionStats();
 
-        $collections = array_map(function (string $handle) use ($stats) {
+        $collections = array_map(function (string $handle) use ($stats): array {
             $stat = $stats->get($handle);
 
             return [

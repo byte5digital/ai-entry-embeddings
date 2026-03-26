@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Exceptions;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
-final class EmbeddingResourceNotFoundException extends \RuntimeException
+final class EmbeddingResourceNotFoundException extends RuntimeException
 {
     public function __construct(
         private readonly string $titleKey = 'ai-entry-embeddings::frontend.not_found.collection.title',
@@ -33,7 +33,7 @@ final class EmbeddingResourceNotFoundException extends \RuntimeException
         );
     }
 
-    public function render(Request $request): Response
+    public function render(): Response
     {
         return Inertia::render('ai-entry-embeddings::NotFound', [
             'title' => __($this->titleKey),

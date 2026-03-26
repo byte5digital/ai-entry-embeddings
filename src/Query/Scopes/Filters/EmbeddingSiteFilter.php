@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Query\Scopes\Filters;
 
+use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
 use Illuminate\Database\Eloquent\Builder;
 use Statamic\Facades\Site;
 use Statamic\Query\Scopes\Filter;
@@ -41,7 +42,7 @@ class EmbeddingSiteFilter extends Filter
     }
 
     /**
-     * @param  Builder<\Byte5\AiEntryEmbeddings\Models\EntryEmbedding>  $query
+     * @param  Builder<EntryEmbedding>  $query
      * @param  array<string, string>  $values
      */
     public function apply($query, $values): void
@@ -67,7 +68,7 @@ class EmbeddingSiteFilter extends Filter
     private function options(): array
     {
         return Site::authorized()
-            ->mapWithKeys(fn ($site) => [$site->handle() => __($site->name())])
+            ->mapWithKeys(fn ($site): array => [$site->handle() => __($site->name())])
             ->all();
     }
 }

@@ -44,8 +44,10 @@ final readonly class CollectionConfig
                     if (! is_string($extractorClass) || ! is_a($extractorClass, FieldExtractorInterface::class, true)) {
                         throw InvalidCollectionConfigException::invalidFieldEntry($handle, count($fields) - 1);
                     }
+
                     $extractors[] = $extractorClass;
                 }
+
                 $customExtractors[$key] = $extractors;
             } else {
                 throw InvalidCollectionConfigException::invalidFieldEntry($handle, is_int($key) ? $key : count($fields));

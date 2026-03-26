@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractBardField;
-use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractFieldWithAi;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractGridField;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractMarkdownField;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\Pipes\ExtractReplicatorField;
