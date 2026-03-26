@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Byte5\AiEntryEmbeddings;
 
 use Byte5\AiEntryEmbeddings\Events\Extraction\ContentExtracted;
+use Byte5\AiEntryEmbeddings\Listeners\EntryBlueprintFoundListener;
 use Byte5\AiEntryEmbeddings\Listeners\StoreExtractedChunksListener;
+use Statamic\Events\EntryBlueprintFound;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentExtractionPipeline;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\FieldExtractorResolver;
 use Byte5\AiEntryEmbeddings\Query\Scopes\Filters\EmbeddingSiteFilter;
@@ -27,6 +29,9 @@ final class ServiceProvider extends AddonServiceProvider
     protected $listen = [
         ContentExtracted::class => [
             StoreExtractedChunksListener::class,
+        ],
+        EntryBlueprintFound::class => [
+            EntryBlueprintFoundListener::class,
         ],
     ];
 

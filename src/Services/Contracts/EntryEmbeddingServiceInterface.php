@@ -43,4 +43,11 @@ interface EntryEmbeddingServiceInterface
      * @return array{paginator: LengthAwarePaginator<int, EntryEmbedding>, activeFilterBadges: array<int, mixed>}
      */
     public function getFilteredEntryChunks(FilteredRequest $request, string $collection, string $entryId): array;
+
+    /**
+     * Get embedding stats for a single entry.
+     *
+     * @return array{total_chunks: int, embedded_chunks: int, pending_chunks: int, status: string, updated_at: string|null}|null
+     */
+    public function getEntryStats(string $entryId, string $collectionHandle): ?array;
 }

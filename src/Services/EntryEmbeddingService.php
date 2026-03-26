@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Byte5\AiEntryEmbeddings\Services;
 
+use Byte5\AiEntryEmbeddings\Enums\EmbeddingStatus;
 use Byte5\AiEntryEmbeddings\Models\EntryEmbedding;
 use Byte5\AiEntryEmbeddings\Pipelines\Extraction\ContentChunk;
 use Byte5\AiEntryEmbeddings\Services\Contracts\EntryEmbeddingServiceInterface;
@@ -126,6 +127,33 @@ final class EntryEmbeddingService implements EntryEmbeddingServiceInterface
         return [
             'paginator' => $query->paginate($request->input('perPage', 15)),
             'activeFilterBadges' => [],
+        ];
+    }
+
+    /** {@inheritDoc} */
+    public function getEntryStats(string $entryId, string $collectionHandle): ?array
+    {
+        $row = EntryEmbedding::query()
+            ->selectRaw('COUNT(*) as total_chunks')
+            ->selectRaw('COUNT(embedding) as embedded_chunks')
+            ->selectRaw('MAX(updated_at) as updated_at')
+            ->where('entry_id', $entryId)
+            ->where('collection_handle', $collectionHandle)
+            ->first();
+
+        if ($row === null || $row->total_chunks === 0) {
+            return null;
+        }
+
+        $totalChunks = (int) $row->total_chunks;
+        $embeddedChunks = (int) $row->embedded_chunks;
+
+        return [
+            'total_chunks' => $totalChunks,
+            'embedded_chunks' => $embeddedChunks,
+            'pending_chunks' => $totalChunks - $embeddedChunks,
+            'status' => EmbeddingStatus::fromChunks($embeddedChunks, $totalChunks)->value,
+            'updated_at' => $row->updated_at?->toIso8601String(),
         ];
     }
 }

@@ -40,6 +40,9 @@ return [
             'updated_at' => 'Updated',
         ],
     ],
+    'fieldtype' => [
+        'title' => 'Embedding Status',
+    ],
     'chunk' => [
         'columns' => [
             'field_handle' => 'Field',
