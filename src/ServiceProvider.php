@@ -45,10 +45,6 @@ final class ServiceProvider extends AddonServiceProvider
 
     public function bootAddon(): void
     {
-        $this->publishes([
-            __DIR__.'/../config/ai-entry-embeddings.php' => config_path('ai-entry-embeddings.php'),
-        ], 'config');
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'ai-entry-embeddings');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->bootNav();
         $this->bootPermissions();
@@ -57,8 +53,6 @@ final class ServiceProvider extends AddonServiceProvider
     public function register(): void
     {
         parent::register();
-
-        $this->mergeConfigFrom(__DIR__.'/../config/ai-entry-embeddings.php', 'ai-entry-embeddings');
 
         $this->app->singleton(FieldExtractorResolver::class);
         $this->app->singleton(ContentExtractionPipeline::class);
