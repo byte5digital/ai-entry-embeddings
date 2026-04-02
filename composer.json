@@ -25,7 +25,7 @@
         "laravel/ai": "^0.3.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^10.8",
+        "orchestra/testbench": "^11.0",
         "driftingly/rector-laravel": "^2.2",
         "rector/rector": "^2.3",
         "larastan/larastan": "^3.9",
