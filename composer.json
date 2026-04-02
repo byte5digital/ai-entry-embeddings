@@ -1,52 +1,52 @@
 {
-    "name": "byte5/ai-entry-embeddings",
-    "description": "Statamic addon for generating AI vector embeddings from entry content.",
-    "license": "GPL-3.0-or-later",
-    "type": "statamic-addon",
-    "autoload": {
-        "psr-4": {
-            "Byte5\\AiEntryEmbeddings\\": "src"
-        }
+  "name": "byte5/ai-entry-embeddings",
+  "description": "Statamic addon for generating AI vector embeddings from entry content.",
+  "license": "GPL-3.0-or-later",
+  "type": "statamic-addon",
+  "autoload": {
+    "psr-4": {
+      "Byte5\\AiEntryEmbeddings\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Byte5\\AiEntryEmbeddings\\Tests\\": "tests"
+    }
+  },
+  "authors": [
+    {
+      "name": "byte5 GmbH",
+      "email": "info@byte5.de"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "statamic/cms": "^6.0",
+    "laravel/ai": "^0.3.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^10.0 || ^11.0",
+    "driftingly/rector-laravel": "^2.2",
+    "rector/rector": "^2.3",
+    "larastan/larastan": "^3.9",
+    "laravel/pint": "^1.29"
+  },
+  "config": {
+    "allow-plugins": {
+      "pixelfear/composer-dist-plugin": true
+    }
+  },
+  "extra": {
+    "statamic": {
+      "name": "AI Entry Embeddings",
+      "description": "Entry vector embedding generation"
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Byte5\\AiEntryEmbeddings\\Tests\\": "tests"
-        }
-    },
-    "authors": [
-        {
-            "name": "byte5 GmbH",
-            "email": "info@byte5.de"
-        }
-    ],
-    "require": {
-        "php": "^8.3",
-        "statamic/cms": "^6.0",
-        "laravel/ai": "^0.3.0"
-    },
-    "require-dev": {
-        "orchestra/testbench": "^10.8",
-        "driftingly/rector-laravel": "^2.2",
-        "rector/rector": "^2.3",
-        "larastan/larastan": "^3.9",
-        "laravel/pint": "^1.29"
-    },
-    "config": {
-        "allow-plugins": {
-            "pixelfear/composer-dist-plugin": true
-        }
-    },
-    "extra": {
-        "statamic": {
-            "name": "AI Entry Embeddings",
-            "description": "Entry vector embedding generation"
-        },
-        "laravel": {
-            "providers": [
-                "Byte5\\AiEntryEmbeddings\\ServiceProvider"
-            ]
-        }
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "laravel": {
+      "providers": [
+        "Byte5\\AiEntryEmbeddings\\ServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
