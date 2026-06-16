@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/byte5digital/ai-entry-embeddings/compare/v0.2.0...v0.2.1) (2026-06-16)
+
+
+### Miscellaneous Chores
+
+* **deps:** Bump googleapis/release-please-action from 4 to 5 ([#7](https://github.com/byte5digital/ai-entry-embeddings/issues/7)) ([ff97ec5](https://github.com/byte5digital/ai-entry-embeddings/commit/ff97ec553e3119c9159b26ccaada120183c59db9))
+* **deps:** Update laravel/ai requirement in the minor-and-patch group ([#2](https://github.com/byte5digital/ai-entry-embeddings/issues/2)) ([000bcdd](https://github.com/byte5digital/ai-entry-embeddings/commit/000bcddc7895d6cf84407babe9a2dd3a9fd95f22))
+
 ## [0.2.0](https://github.com/byte5digital/ai-entry-embeddings/compare/v0.1.0...v0.2.0) (2026-04-02)
 
 
